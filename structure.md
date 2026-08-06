@@ -4,17 +4,20 @@ duhlupa/
 ├── .gitignore
 ├── .next/
 ├── app/
-│   ├── favicon.ico
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
 ├── node_modules/
 ├── public/
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
+│   └── core/
+│       └── favicon/
+│           ├── apple-touch-icon.png
+│           ├── favicon-96x96.png
+│           ├── favicon.ico
+│           ├── favicon.svg
+│           ├── site.webmanifest
+│           ├── web-app-manifest-192x192.png
+│           └── web-app-manifest-512x512.png
 ├── CODE_OF_CONDUCT.md
 ├── eslint.config.mjs
 ├── LICENSE
@@ -23,7 +26,6 @@ duhlupa/
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.mjs
-├── README.md
 ├── rules.md
 ├── structure.md
 └── tsconfig.json
