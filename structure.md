@@ -15,8 +15,6 @@ duhlupa/
 │   ├── next.svg
 │   ├── vercel.svg
 │   └── window.svg
-├── AGENTS.md
-├── CLAUDE.md
 ├── CODE_OF_CONDUCT.md
 ├── eslint.config.mjs
 ├── LICENSE
