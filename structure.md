@@ -7,6 +7,11 @@ duhlupa/
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
+├── components/
+│   ├── icons/
+│   │   ├── close.tsx
+│   │   └── plus.tsx
+│   └── tabs-bar.tsx
 ├── node_modules/
 ├── public/
 │   └── core/
