@@ -150,7 +150,7 @@ export default function TabsBar() {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
-        className="no-scrollbar flex h-9 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar"
+        className="no-scrollbar flex h-10 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar sm:h-9"
       >
         {tabs.map((tab, index) => {
           const isActive = tab.id === activeId;
@@ -203,7 +203,7 @@ export default function TabsBar() {
         aria-label="Note content"
         value={activeTab?.content ?? ""}
         onChange={(event) => updateContent(event.target.value)}
-        className="min-h-0 flex-1 resize-none bg-card px-4 pb-16 pt-6 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10"
+        className="min-h-0 flex-1 resize-none bg-card px-3 pb-16 pt-6 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10 lg:px-14"
       />
       <button
         aria-label="Settings"
