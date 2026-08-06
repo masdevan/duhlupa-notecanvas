@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import IconClose from "./icons/close";
 import IconPlus from "./icons/plus";
 
@@ -9,31 +9,99 @@ type Tab = {
   content: string;
 };
 
-export default function TabsBar() {
-  const [tabs, setTabs] = useState<Tab[]>([{ id: 1, content: "" }]);
-  const [activeId, setActiveId] = useState(1);
-  const [counter, setCounter] = useState(1);
+type AppState = {
+  tabs: Tab[];
+  activeId: number;
+  counter: number;
+};
 
+const STORAGE_KEY = "duhlupa-tabs";
+
+function saveState(next: AppState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {}
+}
+
+function defaultState(): AppState {
+  return { tabs: [{ id: 1, content: "" }], activeId: 1, counter: 1 };
+}
+
+function loadState(): AppState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const stored = raw ? JSON.parse(raw) : null;
+    if (
+      stored &&
+      Array.isArray(stored.tabs) &&
+      stored.tabs.length > 0 &&
+      typeof stored.activeId === "number" &&
+      typeof stored.counter === "number"
+    ) {
+      return stored;
+    }
+  } catch {
+    return defaultState();
+  }
+  return defaultState();
+}
+
+export default function TabsBar() {
+  const [state, setState] = useState<AppState>(defaultState);
+  const { tabs, activeId, counter } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
+
+  useEffect(() => {
+    setState(loadState());
+  }, []);
 
   function addTab() {
     const id = counter + 1;
-    setTabs([...tabs, { id, content: "" }]);
-    setCounter(id);
-    setActiveId(id);
+    const next = {
+      ...state,
+      tabs: [...state.tabs, { id, content: "" }],
+      activeId: id,
+      counter: id,
+    };
+    setState(next);
+    saveState(next);
   }
 
   function closeTab(id: number) {
-    const index = tabs.findIndex((tab) => tab.id === id);
-    const remaining = tabs.filter((tab) => tab.id !== id);
-    setTabs(remaining);
-    if (activeId === id) {
-      setActiveId(remaining[Math.min(index, remaining.length - 1)]?.id ?? 0);
+    const index = state.tabs.findIndex((tab) => tab.id === id);
+    const remaining = state.tabs.filter((tab) => tab.id !== id);
+    let next: AppState;
+    if (remaining.length === 0) {
+      next = defaultState();
+    } else {
+      next = {
+        ...state,
+        tabs: remaining,
+        activeId:
+          state.activeId === id
+            ? remaining[Math.min(index, remaining.length - 1)].id
+            : state.activeId,
+      };
     }
+    setState(next);
+    saveState(next);
   }
 
   function updateContent(content: string) {
-    setTabs(tabs.map((tab) => (tab.id === activeId ? { ...tab, content } : tab)));
+    const next = {
+      ...state,
+      tabs: state.tabs.map((tab) =>
+        tab.id === state.activeId ? { ...tab, content } : tab,
+      ),
+    };
+    setState(next);
+    saveState(next);
+  }
+
+  function selectTab(id: number) {
+    const next = { ...state, activeId: id };
+    setState(next);
+    saveState(next);
   }
 
   return (
@@ -52,11 +120,11 @@ export default function TabsBar() {
           return (
             <div
               key={tab.id}
-              onClick={() => setActiveId(tab.id)}
+              onClick={() => selectTab(tab.id)}
               className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
                 isActive
-                ? "border-t-accent bg-tab-active text-muted"
-                : "border-t-transparent text-muted hover:bg-tab-active/50 hover:text-foreground"
+                  ? "border-t-accent bg-tab-active text-muted"
+                  : "border-t-transparent text-muted hover:bg-tab-active/50 hover:text-foreground"
               }`}
             >
               <span className="truncate pr-7">{title}</span>
