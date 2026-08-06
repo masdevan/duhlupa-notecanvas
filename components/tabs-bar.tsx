@@ -53,10 +53,10 @@ export default function TabsBar() {
             <div
               key={tab.id}
               onClick={() => setActiveId(tab.id)}
-              className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 text-xs transition-colors ${borderClasses} ${
+              className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
                 isActive
-                  ? "border-t-accent bg-tab-active text-foreground"
-                  : "border-t-transparent text-muted hover:bg-tab-active/50 hover:text-foreground"
+                ? "border-t-accent bg-tab-active text-muted"
+                : "border-t-transparent text-muted hover:bg-tab-active/50 hover:text-foreground"
               }`}
             >
               <span className="truncate pr-7">{title}</span>
@@ -87,7 +87,7 @@ export default function TabsBar() {
         aria-label="Note content"
         value={activeTab?.content ?? ""}
         onChange={(event) => updateContent(event.target.value)}
-        className="min-h-0 flex-1 resize-none bg-card px-4 py-4 font-mono text-sm leading-6 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:py-6 sm:text-base sm:leading-7 md:px-10"
+        className="min-h-0 flex-1 resize-none bg-card px-4 py-3 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:py-4 sm:text-base sm:leading-5 md:px-10"
       />
     </main>
   );
