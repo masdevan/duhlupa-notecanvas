@@ -10,7 +10,8 @@ duhlupa/
 ├── components/
 │   ├── icons/
 │   │   ├── close.tsx
-│   │   └── plus.tsx
+│   │   ├── plus.tsx
+│   │   └── settings.tsx
 │   └── tabs-bar.tsx
 ├── node_modules/
 ├── public/

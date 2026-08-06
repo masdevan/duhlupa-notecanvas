@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import IconClose from "./icons/close";
 import IconPlus from "./icons/plus";
+import IconSettings from "./icons/settings";
 
 type Tab = {
   id: number;
@@ -204,6 +205,17 @@ export default function TabsBar() {
         onChange={(event) => updateContent(event.target.value)}
         className="min-h-0 flex-1 resize-none bg-card px-4 py-3 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:py-4 sm:text-base sm:leading-5 md:px-10"
       />
+      <button
+        aria-label="Settings"
+        className="group absolute bottom-2 left-0 flex h-8 cursor-pointer items-center overflow-hidden rounded-r-md bg-accent text-base transition-colors hover:brightness-110"
+      >
+        <span className="flex h-full w-8 shrink-0 items-center justify-center">
+          <IconSettings />
+        </span>
+        <span className="max-w-0 self-center whitespace-nowrap pt-0.5 font-mono text-xs text-base opacity-0 transition-all duration-200 group-hover:max-w-40 group-hover:opacity-100 group-hover:pr-3">
+          Settings
+        </span>
+      </button>
     </main>
   );
 }
