@@ -203,7 +203,7 @@ export default function TabsBar() {
         aria-label="Note content"
         value={activeTab?.content ?? ""}
         onChange={(event) => updateContent(event.target.value)}
-        className="min-h-0 flex-1 resize-none bg-card px-4 py-3 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:py-4 sm:text-base sm:leading-5 md:px-10"
+        className="min-h-0 flex-1 resize-none bg-card px-4 pb-16 pt-6 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10"
       />
       <button
         aria-label="Settings"
