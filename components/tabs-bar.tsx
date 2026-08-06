@@ -58,7 +58,7 @@ export default function TabsBar() {
   }, []);
 
   if (!ready) {
-    return null;
+    return <main className="h-dvh bg-surface" />;
   }
 
   function addTab() {
