@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import IconClose from "./icons/close";
 import IconPlus from "./icons/plus";
 
@@ -51,11 +51,41 @@ export default function TabsBar() {
   const [ready, setReady] = useState(false);
   const { tabs, activeId, counter } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
 
   useEffect(() => {
     setState(initialState());
     setReady(true);
   }, []);
+
+  function onMouseDown(event: React.MouseEvent) {
+    drag.current = {
+      active: true,
+      startX: event.clientX,
+      startScroll: stripRef.current?.scrollLeft ?? 0,
+      moved: false,
+    };
+    stripRef.current?.classList.add("cursor-grabbing");
+  }
+
+  function onMouseMove(event: React.MouseEvent) {
+    if (!drag.current.active) {
+      return;
+    }
+    const dx = event.clientX - drag.current.startX;
+    if (Math.abs(dx) > 4) {
+      drag.current.moved = true;
+    }
+    if (stripRef.current) {
+      stripRef.current.scrollLeft = drag.current.startScroll - dx;
+    }
+  }
+
+  function onMouseUp() {
+    drag.current.active = false;
+    stripRef.current?.classList.remove("cursor-grabbing");
+  }
 
   if (!ready) {
     return <main className="h-dvh bg-surface" />;
@@ -113,7 +143,14 @@ export default function TabsBar() {
   return (
     <main className="flex h-dvh flex-col overflow-hidden">
       <h1 className="sr-only">duhlupa</h1>
-      <div className="no-scrollbar flex h-9 select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar">
+      <div
+        ref={stripRef}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        className="no-scrollbar flex h-9 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar"
+      >
         {tabs.map((tab, index) => {
           const isActive = tab.id === activeId;
           const firstLine = tab.content.split("\n")[0].trim();
@@ -126,7 +163,11 @@ export default function TabsBar() {
           return (
             <div
               key={tab.id}
-              onClick={() => selectTab(tab.id)}
+              onClick={() => {
+                if (!drag.current.moved) {
+                  selectTab(tab.id);
+                }
+              }}
               className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
                 isActive
                   ? "border-t-accent bg-tab-active text-muted"
