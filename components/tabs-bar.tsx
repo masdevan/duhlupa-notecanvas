@@ -27,7 +27,7 @@ function defaultState(): AppState {
   return { tabs: [{ id: 1, content: "" }], activeId: 1, counter: 1 };
 }
 
-function loadState(): AppState {
+function initialState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const stored = raw ? JSON.parse(raw) : null;
@@ -48,12 +48,18 @@ function loadState(): AppState {
 
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
+  const [ready, setReady] = useState(false);
   const { tabs, activeId, counter } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
-    setState(loadState());
+    setState(initialState());
+    setReady(true);
   }, []);
+
+  if (!ready) {
+    return null;
+  }
 
   function addTab() {
     const id = counter + 1;
