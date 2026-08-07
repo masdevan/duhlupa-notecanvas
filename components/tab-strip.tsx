@@ -88,7 +88,7 @@ export default function TabStrip({
                 onClose(tab.id);
               }}
               aria-label="Close tab"
-              className="absolute right-2 flex h-3 w-3 cursor-pointer items-center justify-center rounded-full bg-red-500/20 text-red-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/40"
+                className="absolute right-2 flex h-3 w-3 cursor-pointer items-center justify-center rounded-full bg-red-500/20 text-red-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/40"
             >
               <IconClose size={10} />
             </button>
@@ -98,7 +98,7 @@ export default function TabStrip({
       <button
         onClick={onAdd}
         aria-label="New tab"
-        className="flex h-full shrink-0 cursor-pointer items-center bg-tab-bar px-3 text-muted transition hover:bg-tab-active hover:text-foreground"
+        className="flex h-full shrink-0 cursor-pointer items-center bg-tab-bar px-3 text-foreground/40 transition hover:bg-tab-active hover:text-foreground"
       >
         <IconPlus size={16} />
       </button>

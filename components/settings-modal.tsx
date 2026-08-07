@@ -49,7 +49,7 @@ function ColorRow({
           event.stopPropagation();
           onToggle();
         }}
-        className="cursor-pointer font-mono text-xs text-muted transition-colors hover:text-foreground"
+        className="cursor-pointer font-mono text-xs text-foreground/60 transition-colors hover:text-foreground"
       >
         {label}
       </button>
@@ -160,7 +160,7 @@ export default function SettingsModal({
           <button
             onClick={requestClose}
             aria-label="Close settings"
-            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-muted transition-colors hover:bg-tab-active hover:text-foreground"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-foreground/50 transition-colors hover:bg-tab-active hover:text-foreground"
           >
             <IconClose size={14} />
           </button>
@@ -185,7 +185,7 @@ export default function SettingsModal({
           <div className="flex gap-2">
             <button
               onClick={() => setDialog("reset")}
-              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
             >
               Reset
             </button>
@@ -199,13 +199,13 @@ export default function SettingsModal({
           <div className="flex gap-2">
             <button
               onClick={onExport}
-              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
             >
               Export data
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
             >
               Import data
             </button>

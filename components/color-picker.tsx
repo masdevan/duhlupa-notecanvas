@@ -153,7 +153,7 @@ export default function ColorPicker({
         <button
           onClick={requestClose}
           aria-label="Close color picker"
-          className="absolute -right-2 -top-2 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-edge bg-raised text-muted shadow transition-colors hover:text-foreground"
+          className="absolute -right-2 -top-2 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-edge bg-raised text-foreground/50 shadow transition-colors hover:text-foreground"
         >
           <IconClose size={12} />
         </button>
@@ -228,7 +228,7 @@ export default function ColorPicker({
         <div className="flex gap-2">
           <button
             onClick={resetColor}
-            className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+            className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
           >
             Reset
           </button>

@@ -33,7 +33,7 @@ export default function ConfirmDialog({
         <div className="mt-5 flex gap-2">
           <button
             onClick={onCancel}
-            className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+            className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
           >
             {cancelLabel}
           </button>
