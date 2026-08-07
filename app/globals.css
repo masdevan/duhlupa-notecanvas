@@ -38,24 +38,24 @@ textarea {
   display: none;
 }
 
-textarea {
+.editor-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--color-edge) transparent;
 }
 
-textarea::-webkit-scrollbar {
+.editor-scroll::-webkit-scrollbar {
   width: 8px;
 }
 
-textarea::-webkit-scrollbar-track {
+.editor-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-textarea::-webkit-scrollbar-thumb {
+.editor-scroll::-webkit-scrollbar-thumb {
   background: var(--color-edge);
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb:hover {
+.editor-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent);
 }

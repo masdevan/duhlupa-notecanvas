@@ -14,6 +14,7 @@ type AppState = {
   tabs: Tab[];
   activeId: number;
   counter: number;
+  wrapWidth: number | null;
 };
 
 const STORAGE_KEY = "duhlupa-tabs";
@@ -25,7 +26,7 @@ function saveState(next: AppState) {
 }
 
 function defaultState(): AppState {
-  return { tabs: [{ id: 1, content: "" }], activeId: 1, counter: 1 };
+  return { tabs: [{ id: 1, content: "" }], activeId: 1, counter: 1, wrapWidth: null };
 }
 
 function initialState(): AppState {
@@ -37,7 +38,8 @@ function initialState(): AppState {
       Array.isArray(stored.tabs) &&
       stored.tabs.length > 0 &&
       typeof stored.activeId === "number" &&
-      typeof stored.counter === "number"
+      typeof stored.counter === "number" &&
+      (typeof stored.wrapWidth === "number" || stored.wrapWidth === null)
     ) {
       return stored;
     }
@@ -50,15 +52,98 @@ function initialState(): AppState {
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
-  const { tabs, activeId, counter } = state;
+  const { tabs, activeId, counter, wrapWidth } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
   const stripRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
   const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
+  const dragHandle = useRef<{
+    startX: number;
+    startWidth: number;
+    edge: "left" | "right";
+  } | null>(null);
+  const [wrapperW, setWrapperW] = useState(0);
 
   useEffect(() => {
     setState(initialState());
     setReady(true);
   }, []);
+
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    function measure() {
+      if (wrapperRef.current) {
+        setWrapperW(wrapperRef.current.clientWidth);
+      }
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [ready]);
+
+  useEffect(() => {
+    function onMove(event: MouseEvent) {
+      const handle = dragHandle.current;
+      if (!handle) {
+        return;
+      }
+      const delta = event.clientX - handle.startX;
+      const width =
+        handle.startWidth + (handle.edge === "right" ? delta : -delta);
+      const next = {
+        ...state,
+        wrapWidth: Math.min(Math.max(width, 320), wrapperW),
+      };
+      setState(next);
+      saveState(next);
+    }
+    function onUp() {
+      dragHandle.current = null;
+    }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [wrapperW]);
+
+  function onHandlePointerDown(edge: "left" | "right") {
+    return (event: React.PointerEvent) => {
+      event.preventDefault();
+      dragHandle.current = {
+        startX: event.clientX,
+        startWidth: wrapWidth ?? wrapperW,
+        edge,
+      };
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {}
+    };
+  }
+
+  function onHandlePointerMove(event: React.PointerEvent) {
+    const handle = dragHandle.current;
+    if (!handle) {
+      return;
+    }
+    const delta = event.clientX - handle.startX;
+    const width =
+      handle.startWidth + (handle.edge === "right" ? delta : -delta);
+    const next = {
+      ...state,
+      wrapWidth: Math.min(Math.max(width, 320), wrapperW),
+    };
+    setState(next);
+    saveState(next);
+  }
+
+  function onHandlePointerUp() {
+    dragHandle.current = null;
+  }
 
   function onMouseDown(event: React.MouseEvent) {
     drag.current = {
@@ -192,19 +277,53 @@ export default function TabsBar() {
         <button
           onClick={addTab}
           aria-label="New tab"
-          className="sticky right-0 flex h-full shrink-0 cursor-pointer items-center bg-tab-bar px-3 text-muted transition hover:bg-tab-active hover:text-foreground"
+          className="flex h-full shrink-0 cursor-pointer items-center bg-tab-bar px-3 text-muted transition hover:bg-tab-active hover:text-foreground"
         >
           <IconPlus size={16} />
         </button>
       </div>
-      <textarea
-        spellCheck={false}
-        placeholder="Start writing..."
-        aria-label="Note content"
-        value={activeTab?.content ?? ""}
-        onChange={(event) => updateContent(event.target.value)}
-        className="min-h-0 flex-1 resize-none bg-card px-3 pb-16 pt-6 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10 lg:px-14"
-      />
+      <div
+        ref={wrapperRef}
+        onClick={() => editorRef.current?.focus()}
+        className="group editor-scroll relative min-h-0 flex-1 overflow-y-auto bg-card"
+      >
+        <div
+          className="relative mx-auto min-h-full"
+          style={{
+            width: wrapWidth ? `${wrapWidth}px` : "100%",
+            maxWidth: "100%",
+          }}
+        >
+          <textarea
+            ref={editorRef}
+            spellCheck={false}
+            placeholder="Start writing..."
+            aria-label="Note content"
+            value={activeTab?.content ?? ""}
+            onChange={(event) => updateContent(event.target.value)}
+            style={{ fieldSizing: "content" }}
+            className="w-full resize-none bg-transparent px-3 pb-16 pt-6 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-muted sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10 lg:px-14"
+          />
+          <div
+            onPointerDown={onHandlePointerDown("left")}
+            onPointerMove={onHandlePointerMove}
+            onPointerUp={onHandlePointerUp}
+            onPointerCancel={onHandlePointerUp}
+            className="absolute inset-y-0 -ml-3 left-0 hidden w-6 cursor-col-resize touch-none items-center justify-center opacity-0 transition-opacity hover:opacity-100 sm:flex sm:left-3 md:left-7 lg:left-11"
+          >
+            <div className="h-full w-px bg-edge" />
+          </div>
+          <div
+            onPointerDown={onHandlePointerDown("right")}
+            onPointerMove={onHandlePointerMove}
+            onPointerUp={onHandlePointerUp}
+            onPointerCancel={onHandlePointerUp}
+            className="absolute inset-y-0 -mr-3 right-0 hidden w-6 cursor-col-resize touch-none items-center justify-center opacity-0 transition-opacity hover:opacity-100 sm:flex sm:right-3 md:right-7 lg:right-11"
+          >
+            <div className="h-full w-px bg-edge" />
+          </div>
+        </div>
+      </div>
       <button
         aria-label="Settings"
         className="group absolute bottom-2 left-0 flex h-8 cursor-pointer items-center overflow-hidden rounded-r-md bg-accent text-base transition-colors hover:brightness-110"
