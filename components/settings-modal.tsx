@@ -10,8 +10,7 @@ import type { AppState } from "../lib/types";
 type SettingsModalProps = {
   accentColor: string;
   textColor: string;
-  onAccentColorChange: (color: string) => void;
-  onTextColorChange: (color: string) => void;
+  onSaveColors: (accent: string, text: string) => void;
   onResetAll: () => void;
   onClearAll: () => void;
   onExport: () => void;
@@ -69,8 +68,7 @@ function ColorRow({
 export default function SettingsModal({
   accentColor,
   textColor,
-  onAccentColorChange,
-  onTextColorChange,
+  onSaveColors,
   onResetAll,
   onClearAll,
   onExport,
@@ -103,8 +101,7 @@ export default function SettingsModal({
   }
 
   function save() {
-    onAccentColorChange(draftAccent);
-    onTextColorChange(draftText);
+    onSaveColors(draftAccent, draftText);
     close();
   }
 

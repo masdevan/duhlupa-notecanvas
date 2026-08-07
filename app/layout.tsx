@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 
@@ -21,6 +22,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${roboto.variable} h-full antialiased`}>
+      <head>
+        <Script src="/init.js" strategy="beforeInteractive" />
+      </head>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

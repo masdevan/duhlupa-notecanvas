@@ -80,12 +80,8 @@ export default function TabsBar() {
     commit({ ...state, wrapWidth: width });
   }
 
-  function updateAccentColor(color: string) {
-    commit({ ...state, accentColor: color });
-  }
-
-  function updateTextColor(color: string) {
-    commit({ ...state, textColor: color });
+  function updateColors(accent: string, text: string) {
+    commit({ ...state, accentColor: accent, textColor: text });
   }
 
   function resetAllSettings() {
@@ -146,8 +142,7 @@ export default function TabsBar() {
         <SettingsModal
           accentColor={accentColor}
           textColor={textColor}
-          onAccentColorChange={updateAccentColor}
-          onTextColorChange={updateTextColor}
+          onSaveColors={updateColors}
           onResetAll={resetAllSettings}
           onClearAll={clearAllData}
           onExport={exportData}
