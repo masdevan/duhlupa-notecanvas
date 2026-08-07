@@ -199,6 +199,7 @@ export default function SettingsModal({
               <select
                 value={draftFont}
                 onChange={(event) => setDraftFont(event.target.value)}
+                style={{ colorScheme: "dark" }}
                 className="h-8 w-full cursor-pointer appearance-none rounded-sm border border-edge bg-transparent pl-3 pr-8 font-mono text-xs text-foreground/50 outline-none transition-colors hover:border-accent hover:text-foreground"
               >
                 <option value="mono">Mono</option>
@@ -256,6 +257,14 @@ export default function SettingsModal({
           >
             Clear all data
           </button>
+          <a
+            href="https://devansugiharta.my.id"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pt-2 text-center font-mono text-[10px] text-foreground/15 transition-colors hover:text-accent"
+          >
+            created by Devan
+          </a>
         </div>
       </div>
       {dialog && (

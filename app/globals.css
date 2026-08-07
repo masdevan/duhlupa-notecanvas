@@ -101,6 +101,9 @@ textarea {
 
 select option {
   cursor: pointer;
+  border: none;
+  background-color: #121212;
+  color: #f5f5f5;
 }
 
 .editor-scroll {
