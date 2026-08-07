@@ -15,6 +15,7 @@ export function defaultState(): AppState {
     counter: 1,
     wrapWidth: null,
     accentColor: "#39bff3",
+    textColor: "#f5f5f5",
   };
 }
 
@@ -29,7 +30,8 @@ export function initialState(): AppState {
       typeof stored.activeId === "number" &&
       typeof stored.counter === "number" &&
       (typeof stored.wrapWidth === "number" || stored.wrapWidth === null) &&
-      typeof stored.accentColor === "string"
+      typeof stored.accentColor === "string" &&
+      typeof stored.textColor === "string"
     ) {
       return stored;
     }

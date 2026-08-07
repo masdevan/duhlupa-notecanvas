@@ -6,17 +6,65 @@ import IconClose from "./icons/close";
 
 type SettingsModalProps = {
   accentColor: string;
+  textColor: string;
   onAccentColorChange: (color: string) => void;
+  onTextColorChange: (color: string) => void;
   onClose: () => void;
 };
 
+function ColorRow({
+  color,
+  label,
+  open,
+  onToggle,
+  onChange,
+}: {
+  color: string;
+  label: string;
+  open: boolean;
+  onToggle: () => void;
+  onChange: (color: string) => void;
+}) {
+  return (
+    <div className="flex w-full items-center gap-3">
+      <button
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggle();
+        }}
+        aria-label={`Pick ${label}`}
+        className="h-8 w-8 shrink-0 cursor-pointer rounded-full border border-edge transition-transform hover:scale-110"
+        style={{ backgroundColor: color }}
+      />
+      <button
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggle();
+        }}
+        className="cursor-pointer font-mono text-xs text-muted transition-colors hover:text-foreground"
+      >
+        {label}
+      </button>
+      {open && (
+        <ColorPicker
+          accentColor={color}
+          onAccentColorChange={onChange}
+          onClose={onToggle}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function SettingsModal({
   accentColor,
+  textColor,
   onAccentColorChange,
+  onTextColorChange,
   onClose,
 }: SettingsModalProps) {
   const [closing, setClosing] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState<"accent" | "text" | null>(null);
 
   function requestClose() {
     if (closing) {
@@ -24,6 +72,10 @@ export default function SettingsModal({
     }
     setClosing(true);
     window.setTimeout(onClose, 150);
+  }
+
+  function togglePicker(kind: "accent" | "text") {
+    setPickerOpen(pickerOpen === kind ? null : kind);
   }
 
   return (
@@ -34,7 +86,10 @@ export default function SettingsModal({
       }`}
     >
       <div
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation();
+          setPickerOpen(null);
+        }}
         className={`w-full max-w-md rounded-sm border border-edge bg-raised p-6 shadow-2xl ${
           closing ? "modal-panel-out" : "modal-panel"
         }`}
@@ -49,26 +104,21 @@ export default function SettingsModal({
             <IconClose size={14} />
           </button>
         </div>
-        <div className="relative mt-6 flex flex-col items-center gap-4">
-          <div className="flex w-full items-center gap-3">
-            <button
-              onClick={(event) => {
-                event.stopPropagation();
-                setPickerOpen(!pickerOpen);
-              }}
-              aria-label="Pick accent color"
-              className="h-8 w-8 shrink-0 cursor-pointer rounded-full border border-edge transition-transform hover:scale-110"
-              style={{ backgroundColor: accentColor }}
-            />
-            <span className="font-mono text-xs text-muted">Accent color</span>
-          </div>
-          {pickerOpen && (
-            <ColorPicker
-              accentColor={accentColor}
-              onAccentColorChange={onAccentColorChange}
-              onClose={() => setPickerOpen(false)}
-            />
-          )}
+        <div className="relative mt-6 flex flex-col gap-4">
+          <ColorRow
+            color={accentColor}
+            label="Accent color"
+            open={pickerOpen === "accent"}
+            onToggle={() => togglePicker("accent")}
+            onChange={onAccentColorChange}
+          />
+          <ColorRow
+            color={textColor}
+            label="Text color"
+            open={pickerOpen === "text"}
+            onToggle={() => togglePicker("text")}
+            onChange={onTextColorChange}
+          />
         </div>
       </div>
     </div>

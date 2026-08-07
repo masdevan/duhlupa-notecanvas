@@ -12,7 +12,7 @@ export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const { tabs, activeId, wrapWidth, accentColor } = state;
+  const { tabs, activeId, wrapWidth, accentColor, textColor } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
@@ -23,6 +23,13 @@ export default function TabsBar() {
   useEffect(() => {
     document.documentElement.style.setProperty("--color-accent", accentColor);
   }, [accentColor]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--color-foreground",
+      textColor,
+    );
+  }, [textColor]);
 
   function commit(next: AppState) {
     setState(next);
@@ -77,6 +84,10 @@ export default function TabsBar() {
     commit({ ...state, accentColor: color });
   }
 
+  function updateTextColor(color: string) {
+    commit({ ...state, textColor: color });
+  }
+
   if (!ready) {
     return <main className="h-dvh bg-surface" />;
   }
@@ -101,7 +112,9 @@ export default function TabsBar() {
       {settingsOpen && (
         <SettingsModal
           accentColor={accentColor}
+          textColor={textColor}
           onAccentColorChange={updateAccentColor}
+          onTextColorChange={updateTextColor}
           onClose={() => setSettingsOpen(false)}
         />
       )}

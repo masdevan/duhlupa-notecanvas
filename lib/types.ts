@@ -9,4 +9,5 @@ export type AppState = {
   counter: number;
   wrapWidth: number | null;
   accentColor: string;
+  textColor: string;
 };

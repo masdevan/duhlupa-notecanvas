@@ -75,11 +75,11 @@ export default function TabStrip({
                 onSelect(tab.id);
               }
             }}
-            className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
-              isActive
-                ? "border-t-accent bg-tab-active text-muted"
-                : "border-t-transparent text-muted hover:bg-tab-active/50 hover:text-foreground"
-            }`}
+              className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
+                isActive
+                  ? "border-t-accent bg-tab-active text-foreground/18"
+                  : "border-t-transparent text-foreground/10 hover:bg-tab-active/50 hover:text-foreground"
+              }`}
           >
             <span className="truncate pr-7">{title}</span>
             <button
