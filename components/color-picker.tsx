@@ -124,7 +124,7 @@ export default function ColorPicker({
   return (
     <div
       onClick={requestClose}
-      className={`fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-md ${
+      className={`fixed inset-0 z-60 flex items-center justify-center bg-black/30 backdrop-blur-md ${
         closing ? "modal-backdrop-out" : "modal-backdrop"
       }`}
     >
