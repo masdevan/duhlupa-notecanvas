@@ -27,6 +27,13 @@ function applyFont(font: string) {
   document.documentElement.style.setProperty("--font-editor", stack);
 }
 
+function applyPosition(position: "left" | "right") {
+  document.documentElement.classList.toggle(
+    "settings-right",
+    position === "right",
+  );
+}
+
 function mergeSettings(
   partial: Partial<
     Pick<AppState, "accentColor" | "textColor" | "fontFamily" | "wrapWidth">
@@ -36,6 +43,7 @@ function mergeSettings(
 }
 
 export default function Settings() {
+  const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT);
   const [textColor, setTextColor] = useState(DEFAULT_TEXT);
@@ -50,7 +58,13 @@ export default function Settings() {
     setContentPosition(next.contentPosition);
     applyColors(next.accentColor, next.textColor);
     applyFont(next.fontFamily);
+    applyPosition(next.contentPosition);
+    setReady(true);
   }, []);
+
+  if (!ready) {
+    return null;
+  }
 
   function saveColors(accent: string, text: string) {
     saveState(mergeSettings({ accentColor: accent, textColor: text }));
@@ -68,6 +82,7 @@ export default function Settings() {
   function savePosition(position: "left" | "right") {
     saveState(mergeSettings({ contentPosition: position }));
     setContentPosition(position);
+    applyPosition(position);
   }
 
   function resetAll() {
@@ -120,7 +135,7 @@ export default function Settings() {
 
   return (
     <>
-      <SettingsButton position={contentPosition} onOpen={() => setOpen(true)} />
+      <SettingsButton onOpen={() => setOpen(true)} />
       {open && (
         <SettingsModal
           accentColor={accentColor}

@@ -106,6 +106,21 @@ select option {
   color: #f5f5f5;
 }
 
+.settings-btn {
+  left: 0;
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+html.settings-right .settings-btn {
+  left: auto;
+  right: 0;
+  border-top-left-radius: 0.375rem;
+  border-bottom-left-radius: 0.375rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
 .editor-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--color-edge) transparent;

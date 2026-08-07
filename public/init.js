@@ -18,5 +18,8 @@ try {
       document.documentElement.style.setProperty("--font-mono", stack);
       document.documentElement.style.setProperty("--font-editor", stack);
     }
+    if (d.contentPosition === "right") {
+      document.documentElement.classList.add("settings-right");
+    }
   }
 } catch (e) {}
