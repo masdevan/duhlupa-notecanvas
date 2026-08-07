@@ -7,6 +7,7 @@ type TableGridProps = {
   table: TableTab;
   onRenameColumn: (index: number, name: string) => void;
   onAddColumn: () => void;
+  onAddRow: () => void;
   onResizeColumn: (index: number, width: number) => void;
   onUpdateCell: (row: number, col: number, value: string) => void;
 };
@@ -15,6 +16,7 @@ export default function TableGrid({
   table,
   onRenameColumn,
   onAddColumn,
+  onAddRow,
   onResizeColumn,
   onUpdateCell,
 }: TableGridProps) {
@@ -63,7 +65,24 @@ export default function TableGrid({
   }
 
   return (
-    <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
+    <>
+      <div className="flex h-[34px] shrink-0 items-center border-b border-t border-edge bg-[#0c0c0c]">
+        <button
+          onClick={handleAddColumn}
+          className="flex h-full cursor-pointer items-center gap-2 border-r border-edge px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
+        >
+          <IconPlus size={12} />
+          <span className="font-mono text-xs">Add column</span>
+        </button>
+        <button
+          onClick={onAddRow}
+          className="flex h-full cursor-pointer items-center gap-2 px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
+        >
+          <IconPlus size={12} />
+          <span className="font-mono text-xs">Add row</span>
+        </button>
+      </div>
+      <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
       <table className="w-full table-fixed border-collapse">
         <thead>
           <tr>
@@ -95,15 +114,7 @@ export default function TableGrid({
                 />
               </th>
             ))}
-            <th className="min-w-11 border-b border-r border-edge p-2">
-              <button
-                onClick={handleAddColumn}
-                aria-label="Add column"
-                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
-              >
-                <IconPlus size={12} />
-              </button>
-            </th>
+            <th className="border-b border-r border-edge" />
           </tr>
         </thead>
         <tbody>
@@ -126,13 +137,14 @@ export default function TableGrid({
                     }
                     className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground outline-none"
                   />
-                </td>
-              ))}
-              <td className="min-w-11 border-b border-r border-edge" />
+                  </td>
+                ))}
+              <td className="border-b border-r border-edge" />
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+    </>
   );
 }

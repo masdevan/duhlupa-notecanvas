@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ConfirmDialog from "../confirm-dialog";
 import TabStrip from "../tab-strip";
+import RowCountModal from "./row-count-modal";
 import TableEmptyState from "./table-empty-state";
 import TableGrid from "./table-grid";
 import TableNameModal from "./table-name-modal";
@@ -17,6 +18,7 @@ export default function TableView() {
   const [state, setState] = useState<TablesState>(defaultTablesState);
   const [ready, setReady] = useState(false);
   const [nameModalOpen, setNameModalOpen] = useState(false);
+  const [rowModalOpen, setRowModalOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<number | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
   const [pendingCloseId, setPendingCloseId] = useState<number | null>(null);
@@ -141,6 +143,23 @@ export default function TableView() {
     }));
   }
 
+  function addRow() {
+    updateActive((table) => ({
+      ...table,
+      rows: [...table.rows, table.columns.map(() => "")],
+    }));
+  }
+
+  function addRows(count: number) {
+    updateActive((table) => ({
+      ...table,
+      rows: [
+        ...table.rows,
+        ...Array.from({ length: count }, () => table.columns.map(() => "")),
+      ],
+    }));
+  }
+
   function updateCell(rowIndex: number, colIndex: number, value: string) {
     updateActive((table) => ({
       ...table,
@@ -181,6 +200,7 @@ export default function TableView() {
           table={active}
           onRenameColumn={renameColumn}
           onAddColumn={addColumn}
+          onAddRow={() => setRowModalOpen(true)}
           onResizeColumn={resizeColumn}
           onUpdateCell={updateCell}
         />
@@ -194,6 +214,15 @@ export default function TableView() {
             setNameModalOpen(false);
           }}
           onCancel={() => setNameModalOpen(false)}
+        />
+      )}
+      {rowModalOpen && (
+        <RowCountModal
+          onAdd={(count) => {
+            addRows(count);
+            setRowModalOpen(false);
+          }}
+          onCancel={() => setRowModalOpen(false)}
         />
       )}
       {pendingCloseId !== null && (
