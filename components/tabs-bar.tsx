@@ -2,46 +2,30 @@
 
 import { useEffect, useState } from "react";
 import Editor from "./editor";
-import SettingsButton from "./settings-button";
-import SettingsModal from "./settings-modal";
+import Settings from "./settings";
+import Sidebar from "./sidebar";
 import TabStrip from "./tab-strip";
 import { defaultState, initialState, saveState } from "../lib/storage";
 import type { AppState } from "../lib/types";
 
-const DEFAULT_ACCENT = "#39bff3";
-const DEFAULT_TEXT = "#f5f5f5";
-const DEFAULT_FONT = "mono";
-
-const FONT_STACKS: Record<string, string> = {
-  mono: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-  sans: "var(--font-roboto), Arial, Helvetica, sans-serif",
-};
-
-function applyColors(accent: string, text: string) {
-  document.documentElement.style.setProperty("--color-accent", accent);
-  document.documentElement.style.setProperty("--color-foreground", text);
-}
-
-function applyFont(font: string) {
-  const stack = FONT_STACKS[font] ?? FONT_STACKS.mono;
-  document.documentElement.style.setProperty("--font-sans", stack);
-  document.documentElement.style.setProperty("--font-mono", stack);
-  document.documentElement.style.setProperty("--font-editor", stack);
-}
-
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const { tabs, activeId, wrapWidth, accentColor, textColor, fontFamily } = state;
+  const { tabs, activeId, wrapWidth } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
     const next = initialState();
-    applyColors(next.accentColor, next.textColor);
-    applyFont(next.fontFamily);
     setState(next);
     setReady(true);
+  }, []);
+
+  useEffect(() => {
+    function reload() {
+      setState(initialState());
+    }
+    window.addEventListener("duhlupa-data-changed", reload);
+    return () => window.removeEventListener("duhlupa-data-changed", reload);
   }, []);
 
   function commit(next: AppState) {
@@ -93,91 +77,30 @@ export default function TabsBar() {
     commit({ ...state, wrapWidth: width });
   }
 
-  function updateColors(accent: string, text: string) {
-    applyColors(accent, text);
-    commit({ ...state, accentColor: accent, textColor: text });
-  }
-
-  function updateFont(font: string) {
-    applyFont(font);
-    commit({ ...state, fontFamily: font });
-  }
-
-  function resetAllSettings() {
-    applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
-    applyFont(DEFAULT_FONT);
-    commit({
-      ...state,
-      accentColor: DEFAULT_ACCENT,
-      textColor: DEFAULT_TEXT,
-      fontFamily: DEFAULT_FONT,
-      wrapWidth: null,
-    });
-  }
-
-  function clearAllData() {
-    try {
-      localStorage.removeItem("duhlupa-tabs");
-    } catch {}
-    applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
-    applyFont(DEFAULT_FONT);
-    setState(defaultState());
-  }
-
-  function exportData() {
-    const blob = new Blob([JSON.stringify(state, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "Duhlupa-backup.json";
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function importData(data: AppState) {
-    applyColors(data.accentColor, data.textColor);
-    applyFont(data.fontFamily);
-    setState(data);
-    saveState(data);
-  }
-
   if (!ready) {
     return <main className="h-dvh bg-surface" />;
   }
 
   return (
-    <main className="flex h-dvh flex-col overflow-hidden">
-      <h1 className="sr-only text-right">Duhlupa</h1>
-      <TabStrip
-        tabs={tabs}
-        activeId={activeId}
-        onSelect={selectTab}
-        onAdd={addTab}
-        onClose={closeTab}
-      />
-      <Editor
-        content={activeTab?.content ?? ""}
-        wrapWidth={wrapWidth}
-        onChange={updateContent}
-        onWrapWidthChange={updateWrapWidth}
-      />
-      <SettingsButton onOpen={() => setSettingsOpen(true)} />
-      {settingsOpen && (
-        <SettingsModal
-          accentColor={accentColor}
-          textColor={textColor}
-          fontFamily={fontFamily}
-          onSaveColors={updateColors}
-          onFontChange={updateFont}
-          onResetAll={resetAllSettings}
-          onClearAll={clearAllData}
-          onExport={exportData}
-          onImport={importData}
-          onClose={() => setSettingsOpen(false)}
+    <main className="flex h-dvh overflow-hidden">
+      <Sidebar />
+      <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+        <h1 className="sr-only text-right">Duhlupa</h1>
+        <TabStrip
+          tabs={tabs}
+          activeId={activeId}
+          onSelect={selectTab}
+          onAdd={addTab}
+          onClose={closeTab}
         />
-      )}
+        <Editor
+          content={activeTab?.content ?? ""}
+          wrapWidth={wrapWidth}
+          onChange={updateContent}
+          onWrapWidthChange={updateWrapWidth}
+        />
+        <Settings />
+      </div>
     </main>
   );
 }

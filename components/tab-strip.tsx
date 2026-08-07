@@ -11,6 +11,12 @@ type TabStripProps = {
   onSelect: (id: number) => void;
   onAdd: () => void;
   onClose: (id: number) => void;
+  showAdd?: boolean;
+  editingId?: number | null;
+  editValue?: string;
+  onEditChange?: (value: string) => void;
+  onEditCommit?: () => void;
+  onRename?: (id: number) => void;
 };
 
 export default function TabStrip({
@@ -19,6 +25,12 @@ export default function TabStrip({
   onSelect,
   onAdd,
   onClose,
+  showAdd = true,
+  editingId = null,
+  editValue = "",
+  onEditChange,
+  onEditCommit,
+  onRename,
 }: TabStripProps) {
   const stripRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
@@ -67,21 +79,37 @@ export default function TabStrip({
         const borderClasses = `${index > 0 ? "border-l" : ""} ${
           index === tabs.length - 1 ? "border-r" : ""
         }`;
-        return (
-          <div
-            key={tab.id}
-            onClick={() => {
-              if (!drag.current.moved) {
-                onSelect(tab.id);
-              }
-            }}
+          return (
+            <div
+              key={tab.id}
+              onClick={() => {
+                if (!drag.current.moved) {
+                  onSelect(tab.id);
+                }
+              }}
+              onDoubleClick={() => onRename?.(tab.id)}
               className={`group relative flex h-full w-32 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors sm:w-40 ${borderClasses} ${
                 isActive
                   ? "border-t-accent bg-tab-active text-foreground/50"
                   : "border-t-transparent text-foreground/40 hover:bg-tab-active/50 hover:text-foreground"
               }`}
-          >
-            <span className="truncate pr-7">{title}</span>
+            >
+              {editingId === tab.id ? (
+                <input
+                  autoFocus
+                  value={editValue}
+                  onChange={(event) => onEditChange?.(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      onEditCommit?.();
+                    }
+                  }}
+                  onBlur={onEditCommit}
+                  className="w-full min-w-0 bg-transparent pr-7 font-mono text-xs text-foreground outline-none"
+                />
+              ) : (
+                <span className="truncate pr-7">{title}</span>
+              )}
             <button
               onClick={(event) => {
                 event.stopPropagation();
@@ -95,13 +123,15 @@ export default function TabStrip({
           </div>
         );
       })}
-      <button
-        onClick={onAdd}
-        aria-label="New tab"
-        className="flex h-full shrink-0 cursor-pointer items-center bg-tab-bar px-3 text-foreground/40 transition hover:bg-tab-active hover:text-foreground"
-      >
-        <IconPlus size={16} />
-      </button>
+      {showAdd && (
+        <button
+          onClick={onAdd}
+          aria-label="New tab"
+          className="flex h-full shrink-0 cursor-pointer items-center bg-tab-bar px-3 text-foreground/40 transition hover:bg-tab-active hover:text-foreground"
+        >
+          <IconPlus size={16} />
+        </button>
+      )}
     </div>
   );
 }

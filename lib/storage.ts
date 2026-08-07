@@ -1,6 +1,7 @@
-import type { AppState, Tab } from "./types";
+import type { AppState, Tab, TablesState, TableTab } from "./types";
 
 const STORAGE_KEY = "duhlupa-tabs";
+const TABLES_KEY = "duhlupa-tables";
 
 export function isValidState(value: unknown): value is AppState {
   if (!value || typeof value !== "object") {
@@ -56,3 +57,72 @@ export function initialState(): AppState {
   }
   return defaultState();
 }
+
+function isValidTablesState(value: unknown): value is TablesState {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const s = value as Record<string, unknown>;
+  return (
+    Array.isArray(s.tables) &&
+    s.tables.every((t) => {
+      if (typeof t !== "object" || t === null) {
+        return false;
+      }
+      const tab = t as Record<string, unknown>;
+      return (
+        typeof tab.id === "number" &&
+        (typeof tab.name === "string" || tab.name === undefined) &&
+        Array.isArray(tab.columns) &&
+        tab.columns.every((c) => typeof c === "string") &&
+        Array.isArray(tab.rows) &&
+        tab.rows.every(
+          (row) =>
+            Array.isArray(row) && row.every((cell) => typeof cell === "string"),
+        )
+      );
+    }) &&
+    typeof s.activeId === "number" &&
+    typeof s.counter === "number"
+  );
+}
+
+export function defaultTablesState(): TablesState {
+  return {
+    tables: [
+      { id: 1, name: "Untitled", columns: ["Column 1"], rows: [[""]] },
+    ],
+    activeId: 1,
+    counter: 1,
+  };
+}
+
+export function initialTablesState(): TablesState {
+  try {
+    const raw = localStorage.getItem(TABLES_KEY);
+    const stored = raw ? JSON.parse(raw) : null;
+    if (isValidTablesState(stored)) {
+      return {
+        ...stored,
+        tables: stored.tables.map((table) => ({
+          ...table,
+          name:
+            typeof table.name === "string"
+              ? table.name
+              : (table.columns[0] ?? "Untitled"),
+        })),
+      };
+    }
+  } catch {
+    return defaultTablesState();
+  }
+  return defaultTablesState();
+}
+
+export function saveTablesState(next: TablesState) {
+  try {
+    localStorage.setItem(TABLES_KEY, JSON.stringify(next));
+  } catch {}
+}
+
+export type { TableTab };

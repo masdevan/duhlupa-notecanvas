@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${roboto.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${roboto.variable} h-full antialiased`}>
       <head>
         <Script src="/init.js" strategy="beforeInteractive" />
       </head>

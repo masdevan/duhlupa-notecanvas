@@ -6,17 +6,25 @@ duhlupa/
 ├── app/
 │   ├── globals.css
 │   ├── layout.tsx
-│   └── page.tsx
+│   ├── page.tsx
+│   └── table/
+│       └── page.tsx
 ├── components/
 │   ├── color-picker.tsx
 │   ├── confirm-dialog.tsx
 │   ├── editor.tsx
 │   ├── icons/
+│   │   ├── chevron-down.tsx
 │   │   ├── close.tsx
 │   │   ├── plus.tsx
-│   │   └── settings.tsx
+│   │   ├── settings.tsx
+│   │   ├── table.tsx
+│   │   └── write.tsx
 │   ├── settings-button.tsx
 │   ├── settings-modal.tsx
+│   ├── settings.tsx
+│   ├── sidebar.tsx
+│   ├── table-view.tsx
 │   ├── tab-strip.tsx
 │   └── tabs-bar.tsx
 ├── lib/
