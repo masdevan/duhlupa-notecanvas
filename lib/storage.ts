@@ -1,6 +1,29 @@
-import type { AppState } from "./types";
+import type { AppState, Tab } from "./types";
 
 const STORAGE_KEY = "duhlupa-tabs";
+
+export function isValidState(value: unknown): value is AppState {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const s = value as Record<string, unknown>;
+  return (
+    Array.isArray(s.tabs) &&
+    s.tabs.length > 0 &&
+    s.tabs.every(
+      (tab) =>
+        typeof tab === "object" &&
+        tab !== null &&
+        typeof (tab as Tab).id === "number" &&
+        typeof (tab as Tab).content === "string",
+    ) &&
+    typeof s.activeId === "number" &&
+    typeof s.counter === "number" &&
+    (typeof s.wrapWidth === "number" || s.wrapWidth === null) &&
+    typeof s.accentColor === "string" &&
+    typeof s.textColor === "string"
+  );
+}
 
 export function saveState(next: AppState) {
   try {
@@ -23,16 +46,7 @@ export function initialState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const stored = raw ? JSON.parse(raw) : null;
-    if (
-      stored &&
-      Array.isArray(stored.tabs) &&
-      stored.tabs.length > 0 &&
-      typeof stored.activeId === "number" &&
-      typeof stored.counter === "number" &&
-      (typeof stored.wrapWidth === "number" || stored.wrapWidth === null) &&
-      typeof stored.accentColor === "string" &&
-      typeof stored.textColor === "string"
-    ) {
+    if (isValidState(stored)) {
       return stored;
     }
   } catch {

@@ -88,6 +88,39 @@ export default function TabsBar() {
     commit({ ...state, textColor: color });
   }
 
+  function resetAllSettings() {
+    commit({
+      ...state,
+      accentColor: "#39bff3",
+      textColor: "#f5f5f5",
+      wrapWidth: null,
+    });
+  }
+
+  function clearAllData() {
+    try {
+      localStorage.removeItem("duhlupa-tabs");
+    } catch {}
+    setState(defaultState());
+  }
+
+  function exportData() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "duhlupa-backup.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(data: AppState) {
+    setState(data);
+    saveState(data);
+  }
+
   if (!ready) {
     return <main className="h-dvh bg-surface" />;
   }
@@ -115,6 +148,10 @@ export default function TabsBar() {
           textColor={textColor}
           onAccentColorChange={updateAccentColor}
           onTextColorChange={updateTextColor}
+          onResetAll={resetAllSettings}
+          onClearAll={clearAllData}
+          onExport={exportData}
+          onImport={importData}
           onClose={() => setSettingsOpen(false)}
         />
       )}

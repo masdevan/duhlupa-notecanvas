@@ -4,6 +4,7 @@ type ConfirmDialogProps = {
   message: string;
   confirmLabel: string;
   cancelLabel: string;
+  danger?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -12,6 +13,7 @@ export default function ConfirmDialog({
   message,
   confirmLabel,
   cancelLabel,
+  danger,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -37,7 +39,11 @@ export default function ConfirmDialog({
           </button>
           <button
             onClick={onConfirm}
-            className="h-8 flex-1 cursor-pointer rounded-sm bg-accent font-mono text-xs text-base transition-colors hover:brightness-110"
+            className={`h-8 flex-1 cursor-pointer rounded-sm font-mono text-xs transition-colors ${
+              danger
+                ? "bg-red-500/80 text-white hover:bg-red-500"
+                : "bg-accent text-base hover:brightness-110"
+            }`}
           >
             {confirmLabel}
           </button>

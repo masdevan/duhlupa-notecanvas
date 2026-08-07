@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ColorPicker from "./color-picker";
 import ConfirmDialog from "./confirm-dialog";
 import IconClose from "./icons/close";
+import { isValidState } from "../lib/storage";
+import type { AppState } from "../lib/types";
 
 type SettingsModalProps = {
   accentColor: string;
   textColor: string;
   onAccentColorChange: (color: string) => void;
   onTextColorChange: (color: string) => void;
+  onResetAll: () => void;
+  onClearAll: () => void;
+  onExport: () => void;
+  onImport: (data: AppState) => void;
   onClose: () => void;
 };
 
@@ -65,11 +71,17 @@ export default function SettingsModal({
   textColor,
   onAccentColorChange,
   onTextColorChange,
+  onResetAll,
+  onClearAll,
+  onExport,
+  onImport,
   onClose,
 }: SettingsModalProps) {
   const [closing, setClosing] = useState(false);
   const [pickerOpen, setPickerOpen] = useState<"accent" | "text" | null>(null);
-  const [dialog, setDialog] = useState<"unsaved" | "reset" | null>(null);
+  const [dialog, setDialog] = useState<"unsaved" | "reset" | "clear" | null>(null);
+  const [importError, setImportError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [draftAccent, setDraftAccent] = useState(accentColor);
   const [draftText, setDraftText] = useState(textColor);
   const dirty = draftAccent !== accentColor || draftText !== textColor;
@@ -97,6 +109,7 @@ export default function SettingsModal({
   }
 
   function reset() {
+    onResetAll();
     setDraftAccent("#39bff3");
     setDraftText("#f5f5f5");
     setDialog(null);
@@ -104,6 +117,28 @@ export default function SettingsModal({
 
   function togglePicker(kind: "accent" | "text") {
     setPickerOpen(pickerOpen === kind ? null : kind);
+  }
+
+  function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+    file
+      .text()
+      .then((text) => {
+        const data = JSON.parse(text);
+        if (!isValidState(data)) {
+          setImportError(true);
+          return;
+        }
+        onImport(data);
+        close();
+      })
+      .catch(() => {
+        setImportError(true);
+      });
   }
 
   return (
@@ -164,6 +199,38 @@ export default function SettingsModal({
               Save
             </button>
           </div>
+          <div className="flex gap-2">
+            <button
+              onClick={onExport}
+              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+            >
+              Export data
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+            >
+              Import data
+            </button>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleImportFile}
+            className="hidden"
+          />
+          {importError && (
+            <p className="text-center font-mono text-xs text-red-400">
+              Invalid backup file.
+            </p>
+          )}
+          <button
+            onClick={() => setDialog("clear")}
+            className="h-8 w-full cursor-pointer rounded-sm border border-red-500/30 font-mono text-xs text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+          >
+            Clear all data
+          </button>
         </div>
       </div>
       {dialog && (
@@ -171,16 +238,29 @@ export default function SettingsModal({
           message={
             dialog === "unsaved"
               ? "You have unsaved changes."
-              : "Reset colors to default?"
+              : dialog === "reset"
+                ? "Reset all settings to default?"
+                : "Clear all data? This cannot be undone."
           }
-          confirmLabel={dialog === "unsaved" ? "Discard" : "Reset"}
+          confirmLabel={
+            dialog === "unsaved"
+              ? "Discard"
+              : dialog === "reset"
+                ? "Reset"
+                : "Clear"
+          }
           cancelLabel="Cancel"
+          danger={dialog === "clear"}
           onConfirm={() => {
             if (dialog === "unsaved") {
               setDialog(null);
               close();
-            } else {
+            } else if (dialog === "reset") {
               reset();
+            } else {
+              onClearAll();
+              setDialog(null);
+              close();
             }
           }}
           onCancel={() => setDialog(null)}
