@@ -66,7 +66,7 @@ export default function TableGrid({
 
   return (
     <>
-      <div className="flex h-[34px] shrink-0 items-center border-b border-t border-edge bg-[#0c0c0c]">
+      <div className="flex h-8.5 shrink-0 items-center border-b border-t border-edge bg-[#0c0c0c]">
         <button
           onClick={handleAddColumn}
           className="flex h-full cursor-pointer items-center gap-2 border-r border-edge px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
