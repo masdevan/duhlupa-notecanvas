@@ -12,6 +12,7 @@
   --color-tab-active: #121212;
   --color-card: #111111;
   --font-editor: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --letter-spacing: 0px;
 }
 
 @theme inline {
@@ -97,6 +98,11 @@ textarea {
 
 textarea {
   font-family: var(--font-editor);
+  letter-spacing: var(--letter-spacing);
+}
+
+table input {
+  letter-spacing: var(--letter-spacing);
 }
 
 select option {

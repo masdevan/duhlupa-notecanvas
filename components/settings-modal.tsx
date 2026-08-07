@@ -12,9 +12,11 @@ type SettingsModalProps = {
   accentColor: string;
   textColor: string;
   fontFamily: string;
+  letterSpacing: number;
   contentPosition: "left" | "right";
   onSaveColors: (accent: string, text: string) => void;
   onFontChange: (font: string) => void;
+  onLetterSpacingChange: (spacing: number) => void;
   onPositionChange: (position: "left" | "right") => void;
   onResetAll: () => void;
   onClearAll: () => void;
@@ -74,9 +76,11 @@ export default function SettingsModal({
   accentColor,
   textColor,
   fontFamily,
+  letterSpacing,
   contentPosition,
   onSaveColors,
   onFontChange,
+  onLetterSpacingChange,
   onPositionChange,
   onResetAll,
   onClearAll,
@@ -92,11 +96,13 @@ export default function SettingsModal({
   const [draftAccent, setDraftAccent] = useState(accentColor);
   const [draftText, setDraftText] = useState(textColor);
   const [draftFont, setDraftFont] = useState(fontFamily);
+  const [draftSpacing, setDraftSpacing] = useState(letterSpacing);
   const [draftPosition, setDraftPosition] = useState(contentPosition);
   const dirty =
     draftAccent !== accentColor ||
     draftText !== textColor ||
     draftFont !== fontFamily ||
+    draftSpacing !== letterSpacing ||
     draftPosition !== contentPosition;
 
   function close() {
@@ -118,6 +124,7 @@ export default function SettingsModal({
   function save() {
     onSaveColors(draftAccent, draftText);
     onFontChange(draftFont);
+    onLetterSpacingChange(draftSpacing);
     onPositionChange(draftPosition);
     close();
   }
@@ -127,6 +134,7 @@ export default function SettingsModal({
     setDraftAccent("#39bff3");
     setDraftText("#f5f5f5");
     setDraftFont("mono");
+    setDraftSpacing(-0.5);
     setDraftPosition("left");
     setDialog(null);
   }
@@ -218,6 +226,23 @@ export default function SettingsModal({
                 className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-foreground/50"
               />
             </div>
+          </div>
+          <div className="flex w-full items-center gap-3">
+            <span className="font-mono text-xs text-foreground/60">
+              Letter spacing
+            </span>
+            <input
+              type="range"
+              min={-1}
+              max={8}
+              step={0.5}
+              value={draftSpacing}
+              onChange={(event) => setDraftSpacing(Number(event.target.value))}
+              className="ml-auto h-8 w-[calc(50%-4rem)] cursor-pointer accent-[var(--color-accent)]"
+            />
+            <span className="w-12 text-right font-mono text-xs text-foreground/50">
+              {draftSpacing}px
+            </span>
           </div>
           <div className="flex w-full items-center gap-3">
             <span className="font-mono text-xs text-foreground/60">Position</span>

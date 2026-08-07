@@ -18,6 +18,9 @@ try {
       document.documentElement.style.setProperty("--font-mono", stack);
       document.documentElement.style.setProperty("--font-editor", stack);
     }
+    if (typeof d.letterSpacing === "number") {
+      document.documentElement.style.setProperty("--letter-spacing", d.letterSpacing + "px");
+    }
     if (d.contentPosition === "right") {
       document.documentElement.classList.add("settings-right");
     }

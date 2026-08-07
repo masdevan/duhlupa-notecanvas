@@ -25,5 +25,6 @@ export type AppState = {
   accentColor: string;
   textColor: string;
   fontFamily: string;
+  letterSpacing: number;
   contentPosition: "left" | "right";
 };

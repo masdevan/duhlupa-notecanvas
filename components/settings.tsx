@@ -34,6 +34,13 @@ function applyPosition(position: "left" | "right") {
   );
 }
 
+function applyLetterSpacing(spacing: number) {
+  document.documentElement.style.setProperty(
+    "--letter-spacing",
+    `${spacing}px`,
+  );
+}
+
 function mergeSettings(
   partial: Partial<
     Pick<AppState, "accentColor" | "textColor" | "fontFamily" | "wrapWidth">
@@ -48,6 +55,7 @@ export default function Settings() {
   const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT);
   const [textColor, setTextColor] = useState(DEFAULT_TEXT);
   const [fontFamily, setFontFamily] = useState(DEFAULT_FONT);
+  const [letterSpacing, setLetterSpacing] = useState(0);
   const [contentPosition, setContentPosition] = useState<"left" | "right">("left");
 
   useEffect(() => {
@@ -55,10 +63,12 @@ export default function Settings() {
     setAccentColor(next.accentColor);
     setTextColor(next.textColor);
     setFontFamily(next.fontFamily);
+    setLetterSpacing(next.letterSpacing);
     setContentPosition(next.contentPosition);
     applyColors(next.accentColor, next.textColor);
     applyFont(next.fontFamily);
     applyPosition(next.contentPosition);
+    applyLetterSpacing(next.letterSpacing);
     setReady(true);
   }, []);
 
@@ -77,6 +87,12 @@ export default function Settings() {
     mergeSettings({ fontFamily: font });
     applyFont(font);
     setFontFamily(font);
+  }
+
+  function saveLetterSpacing(spacing: number) {
+    saveState(mergeSettings({ letterSpacing: spacing }));
+    applyLetterSpacing(spacing);
+    setLetterSpacing(spacing);
   }
 
   function savePosition(position: "left" | "right") {
@@ -141,9 +157,11 @@ export default function Settings() {
           accentColor={accentColor}
           textColor={textColor}
           fontFamily={fontFamily}
+          letterSpacing={letterSpacing}
           contentPosition={contentPosition}
           onSaveColors={saveColors}
           onFontChange={saveFont}
+          onLetterSpacingChange={saveLetterSpacing}
           onPositionChange={savePosition}
           onResetAll={resetAll}
           onClearAll={clearAll}

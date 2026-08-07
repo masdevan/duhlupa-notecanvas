@@ -24,6 +24,7 @@ export function isValidState(value: unknown): value is AppState {
     typeof s.accentColor === "string" &&
     typeof s.textColor === "string" &&
     typeof s.fontFamily === "string" &&
+    typeof s.letterSpacing === "number" &&
     (s.contentPosition === "left" || s.contentPosition === "right")
   );
 }
@@ -43,6 +44,7 @@ export function defaultState(): AppState {
     accentColor: "#39bff3",
     textColor: "#f5f5f5",
     fontFamily: "mono",
+    letterSpacing: -0.5,
     contentPosition: "left",
   };
 }
