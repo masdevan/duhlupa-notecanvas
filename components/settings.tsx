@@ -40,12 +40,14 @@ export default function Settings() {
   const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT);
   const [textColor, setTextColor] = useState(DEFAULT_TEXT);
   const [fontFamily, setFontFamily] = useState(DEFAULT_FONT);
+  const [contentPosition, setContentPosition] = useState<"left" | "right">("left");
 
   useEffect(() => {
     const next = initialState();
     setAccentColor(next.accentColor);
     setTextColor(next.textColor);
     setFontFamily(next.fontFamily);
+    setContentPosition(next.contentPosition);
     applyColors(next.accentColor, next.textColor);
     applyFont(next.fontFamily);
   }, []);
@@ -58,9 +60,14 @@ export default function Settings() {
   }
 
   function saveFont(font: string) {
-    saveState(mergeSettings({ fontFamily: font }));
+    mergeSettings({ fontFamily: font });
     applyFont(font);
     setFontFamily(font);
+  }
+
+  function savePosition(position: "left" | "right") {
+    saveState(mergeSettings({ contentPosition: position }));
+    setContentPosition(position);
   }
 
   function resetAll() {
@@ -113,14 +120,16 @@ export default function Settings() {
 
   return (
     <>
-      <SettingsButton onOpen={() => setOpen(true)} />
+      <SettingsButton position={contentPosition} onOpen={() => setOpen(true)} />
       {open && (
         <SettingsModal
           accentColor={accentColor}
           textColor={textColor}
           fontFamily={fontFamily}
+          contentPosition={contentPosition}
           onSaveColors={saveColors}
           onFontChange={saveFont}
+          onPositionChange={savePosition}
           onResetAll={resetAll}
           onClearAll={clearAll}
           onExport={exportData}

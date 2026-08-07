@@ -25,4 +25,5 @@ export type AppState = {
   accentColor: string;
   textColor: string;
   fontFamily: string;
+  contentPosition: "left" | "right";
 };

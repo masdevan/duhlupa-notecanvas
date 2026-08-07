@@ -92,8 +92,7 @@ export default function Editor({
       onClick={() => editorRef.current?.focus()}
       className="group editor-scroll relative min-h-0 flex-1 overflow-y-auto bg-card"
     >
-      <div
-        className="relative mx-auto min-h-full"
+      <div className="relative mx-auto min-h-full"
         style={{
           width: wrapWidth ? `${wrapWidth}px` : "100%",
           maxWidth: "100%",

@@ -23,7 +23,8 @@ export function isValidState(value: unknown): value is AppState {
     (typeof s.wrapWidth === "number" || s.wrapWidth === null) &&
     typeof s.accentColor === "string" &&
     typeof s.textColor === "string" &&
-    typeof s.fontFamily === "string"
+    typeof s.fontFamily === "string" &&
+    (s.contentPosition === "left" || s.contentPosition === "right")
   );
 }
 
@@ -42,6 +43,7 @@ export function defaultState(): AppState {
     accentColor: "#39bff3",
     textColor: "#f5f5f5",
     fontFamily: "mono",
+    contentPosition: "left",
   };
 }
 

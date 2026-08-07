@@ -12,8 +12,10 @@ type SettingsModalProps = {
   accentColor: string;
   textColor: string;
   fontFamily: string;
+  contentPosition: "left" | "right";
   onSaveColors: (accent: string, text: string) => void;
   onFontChange: (font: string) => void;
+  onPositionChange: (position: "left" | "right") => void;
   onResetAll: () => void;
   onClearAll: () => void;
   onExport: () => void;
@@ -72,8 +74,10 @@ export default function SettingsModal({
   accentColor,
   textColor,
   fontFamily,
+  contentPosition,
   onSaveColors,
   onFontChange,
+  onPositionChange,
   onResetAll,
   onClearAll,
   onExport,
@@ -88,10 +92,12 @@ export default function SettingsModal({
   const [draftAccent, setDraftAccent] = useState(accentColor);
   const [draftText, setDraftText] = useState(textColor);
   const [draftFont, setDraftFont] = useState(fontFamily);
+  const [draftPosition, setDraftPosition] = useState(contentPosition);
   const dirty =
     draftAccent !== accentColor ||
     draftText !== textColor ||
-    draftFont !== fontFamily;
+    draftFont !== fontFamily ||
+    draftPosition !== contentPosition;
 
   function close() {
     if (closing) {
@@ -112,6 +118,7 @@ export default function SettingsModal({
   function save() {
     onSaveColors(draftAccent, draftText);
     onFontChange(draftFont);
+    onPositionChange(draftPosition);
     close();
   }
 
@@ -120,6 +127,7 @@ export default function SettingsModal({
     setDraftAccent("#39bff3");
     setDraftText("#f5f5f5");
     setDraftFont("mono");
+    setDraftPosition("left");
     setDialog(null);
   }
 
@@ -204,6 +212,26 @@ export default function SettingsModal({
               >
                 <option value="mono">Mono</option>
                 <option value="sans">Sans</option>
+              </select>
+              <IconChevronDown
+                size={12}
+                className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-foreground/50"
+              />
+            </div>
+          </div>
+          <div className="flex w-full items-center gap-3">
+            <span className="font-mono text-xs text-foreground/60">Position</span>
+            <div className="relative ml-auto w-[calc(50%-0.25rem)]">
+              <select
+                value={draftPosition}
+                onChange={(event) =>
+                  setDraftPosition(event.target.value as "left" | "right")
+                }
+                style={{ colorScheme: "dark" }}
+                className="h-8 w-full cursor-pointer appearance-none rounded-sm border border-edge bg-transparent pl-3 pr-8 font-mono text-xs text-foreground/50 outline-none transition-colors hover:border-accent hover:text-foreground"
+              >
+                <option value="left">Left</option>
+                <option value="right">Right</option>
               </select>
               <IconChevronDown
                 size={12}
