@@ -8,12 +8,14 @@ duhlupa/
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
+│   ├── color-picker.tsx
 │   ├── editor.tsx
 │   ├── icons/
 │   │   ├── close.tsx
 │   │   ├── plus.tsx
 │   │   └── settings.tsx
 │   ├── settings-button.tsx
+│   ├── settings-modal.tsx
 │   ├── tab-strip.tsx
 │   └── tabs-bar.tsx
 ├── lib/

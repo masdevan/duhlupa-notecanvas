@@ -14,6 +14,7 @@ export function defaultState(): AppState {
     activeId: 1,
     counter: 1,
     wrapWidth: null,
+    accentColor: "#39bff3",
   };
 }
 
@@ -27,7 +28,8 @@ export function initialState(): AppState {
       stored.tabs.length > 0 &&
       typeof stored.activeId === "number" &&
       typeof stored.counter === "number" &&
-      (typeof stored.wrapWidth === "number" || stored.wrapWidth === null)
+      (typeof stored.wrapWidth === "number" || stored.wrapWidth === null) &&
+      typeof stored.accentColor === "string"
     ) {
       return stored;
     }

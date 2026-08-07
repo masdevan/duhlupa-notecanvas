@@ -8,4 +8,5 @@ export type AppState = {
   activeId: number;
   counter: number;
   wrapWidth: number | null;
+  accentColor: string;
 };

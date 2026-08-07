@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Editor from "./editor";
 import SettingsButton from "./settings-button";
+import SettingsModal from "./settings-modal";
 import TabStrip from "./tab-strip";
 import { defaultState, initialState, saveState } from "../lib/storage";
 import type { AppState } from "../lib/types";
@@ -10,13 +11,18 @@ import type { AppState } from "../lib/types";
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
-  const { tabs, activeId, wrapWidth } = state;
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { tabs, activeId, wrapWidth, accentColor } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
     setState(initialState());
     setReady(true);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--color-accent", accentColor);
+  }, [accentColor]);
 
   function commit(next: AppState) {
     setState(next);
@@ -67,6 +73,10 @@ export default function TabsBar() {
     commit({ ...state, wrapWidth: width });
   }
 
+  function updateAccentColor(color: string) {
+    commit({ ...state, accentColor: color });
+  }
+
   if (!ready) {
     return <main className="h-dvh bg-surface" />;
   }
@@ -87,7 +97,14 @@ export default function TabsBar() {
         onChange={updateContent}
         onWrapWidthChange={updateWrapWidth}
       />
-      <SettingsButton />
+      <SettingsButton onOpen={() => setSettingsOpen(true)} />
+      {settingsOpen && (
+        <SettingsModal
+          accentColor={accentColor}
+          onAccentColorChange={updateAccentColor}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
     </main>
   );
 }
