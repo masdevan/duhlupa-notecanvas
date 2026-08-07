@@ -1,4 +1,4 @@
-import TabsBar from "../components/tabs-bar";
+import TabsBar from "../components/write/tabs-bar";
 
 export default function Home() {
   return <TabsBar />;

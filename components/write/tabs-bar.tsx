@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Settings from "../settings";
+import Sidebar from "../sidebar";
+import TabStrip from "../tab-strip";
 import Editor from "./editor";
-import Settings from "./settings";
-import Sidebar from "./sidebar";
-import TabStrip from "./tab-strip";
-import { defaultState, initialState, saveState } from "../lib/storage";
-import type { AppState } from "../lib/types";
+import { defaultState, initialState, saveState } from "../../lib/storage";
+import type { AppState } from "../../lib/types";
 
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);

@@ -1,6 +1,6 @@
 import Settings from "../../components/settings";
 import Sidebar from "../../components/sidebar";
-import TableView from "../../components/table-view";
+import TableView from "../../components/table/table-view";
 
 export default function TablePage() {
   return (

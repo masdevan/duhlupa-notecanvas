@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ConfirmDialog from "./confirm-dialog";
-import IconClose from "./icons/close";
-import IconPlus from "./icons/plus";
-import TabStrip from "./tab-strip";
+import ConfirmDialog from "../confirm-dialog";
+import IconClose from "../icons/close";
+import IconPlus from "../icons/plus";
+import TabStrip from "../tab-strip";
 import {
   defaultTablesState,
   initialTablesState,
   saveTablesState,
-} from "../lib/storage";
-import type { TablesState } from "../lib/types";
+} from "../../lib/storage";
+import type { TablesState } from "../../lib/types";
 
 export default function TableView() {
   const [state, setState] = useState<TablesState>(defaultTablesState);

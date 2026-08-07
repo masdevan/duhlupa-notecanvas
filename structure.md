@@ -12,7 +12,6 @@ duhlupa/
 ├── components/
 │   ├── color-picker.tsx
 │   ├── confirm-dialog.tsx
-│   ├── editor.tsx
 │   ├── icons/
 │   │   ├── chevron-down.tsx
 │   │   ├── close.tsx
@@ -24,9 +23,12 @@ duhlupa/
 │   ├── settings-modal.tsx
 │   ├── settings.tsx
 │   ├── sidebar.tsx
-│   ├── table-view.tsx
 │   ├── tab-strip.tsx
-│   └── tabs-bar.tsx
+│   ├── table/
+│   │   └── table-view.tsx
+│   └── write/
+│       ├── editor.tsx
+│       └── tabs-bar.tsx
 ├── lib/
 │   ├── storage.ts
 │   └── types.ts
