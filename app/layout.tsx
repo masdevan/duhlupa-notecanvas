@@ -10,8 +10,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "duhlupa",
-  description: "duhlupa",
+  title: "Duhlupa",
+  description: "Duhlupa",
   manifest: "/core/favicon/site.webmanifest",
   icons: {
     icon: "/core/favicon/favicon.ico",

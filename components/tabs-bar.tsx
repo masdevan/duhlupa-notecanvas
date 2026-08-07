@@ -131,7 +131,7 @@ export default function TabsBar() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "duhlupa-backup.json";
+    link.download = "Duhlupa-backup.json";
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -149,7 +149,7 @@ export default function TabsBar() {
 
   return (
     <main className="flex h-dvh flex-col overflow-hidden">
-      <h1 className="sr-only">duhlupa</h1>
+      <h1 className="sr-only text-right">Duhlupa</h1>
       <TabStrip
         tabs={tabs}
         activeId={activeId}
