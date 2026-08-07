@@ -9,6 +9,7 @@ duhlupa/
 │   └── page.tsx
 ├── components/
 │   ├── color-picker.tsx
+│   ├── confirm-dialog.tsx
 │   ├── editor.tsx
 │   ├── icons/
 │   │   ├── close.tsx

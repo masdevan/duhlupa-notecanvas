@@ -1,15 +1,15 @@
 "use client";
 
 import { useRef, useState } from "react";
+import ConfirmDialog from "./confirm-dialog";
 import IconClose from "./icons/close";
 
 type ColorPickerProps = {
   accentColor: string;
+  defaultColor: string;
   onAccentColorChange: (color: string) => void;
   onClose: () => void;
 };
-
-const DEFAULT_COLOR = "#39bff3";
 
 function hslToHex(hue: number, sat: number, light: number) {
   const s = sat / 100;
@@ -53,24 +53,36 @@ function dotForHue(hue: number, radius = 49) {
 
 export default function ColorPicker({
   accentColor,
+  defaultColor,
   onAccentColorChange,
   onClose,
 }: ColorPickerProps) {
   const [closing, setClosing] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [hue, setHue] = useState(() => hexToHsl(accentColor).hue);
   const [sat, setSat] = useState(() => hexToHsl(accentColor).sat);
   const [light, setLight] = useState(() => hexToHsl(accentColor).light);
   const [dot, setDot] = useState(() => dotForHue(hexToHsl(accentColor).hue));
+  const initialColor = useRef(accentColor);
   const ringRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const dirty = accentColor !== initialColor.current;
 
-  function requestClose() {
+  function close() {
     if (closing) {
       return;
     }
     setClosing(true);
     window.setTimeout(onClose, 150);
+  }
+
+  function requestClose() {
+    if (dirty) {
+      setConfirmOpen(true);
+      return;
+    }
+    close();
   }
 
   function emit(h: number, s: number, l: number) {
@@ -113,17 +125,21 @@ export default function ColorPicker({
   }
 
   function resetColor() {
-    const parsed = hexToHsl(DEFAULT_COLOR);
+    const parsed = hexToHsl(defaultColor);
     setHue(parsed.hue);
     setSat(parsed.sat);
     setLight(parsed.light);
     setDot(dotForHue(parsed.hue));
-    onAccentColorChange(DEFAULT_COLOR);
+    onAccentColorChange(defaultColor);
   }
 
   return (
+    <>
     <div
-      onClick={requestClose}
+      onClick={(event) => {
+        event.stopPropagation();
+        requestClose();
+      }}
       className={`fixed inset-0 z-60 flex items-center justify-center bg-black/30 backdrop-blur-md ${
         closing ? "modal-backdrop-out" : "modal-backdrop"
       }`}
@@ -217,7 +233,7 @@ export default function ColorPicker({
             Reset
           </button>
           <button
-            onClick={requestClose}
+            onClick={close}
             className="h-8 flex-1 cursor-pointer rounded-sm bg-accent font-mono text-xs text-base transition-colors hover:brightness-110"
           >
             Save
@@ -226,5 +242,18 @@ export default function ColorPicker({
         </div>
       </div>
     </div>
+      {confirmOpen && (
+        <ConfirmDialog
+          message="You have unsaved changes."
+          confirmLabel="Discard"
+          cancelLabel="Keep editing"
+          onConfirm={() => {
+            setConfirmOpen(false);
+            close();
+          }}
+          onCancel={() => setConfirmOpen(false)}
+        />
+      )}
+    </>
   );
 }
