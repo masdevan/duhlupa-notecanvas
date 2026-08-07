@@ -11,6 +11,7 @@
   --color-tab-bar: #090909;
   --color-tab-active: #121212;
   --color-card: #111111;
+  --font-editor: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @theme inline {
@@ -92,6 +93,14 @@ textarea {
 
 .modal-panel-out {
   animation: scale-out 150ms ease-in forwards;
+}
+
+textarea {
+  font-family: var(--font-editor);
+}
+
+select option {
+  cursor: pointer;
 }
 
 .editor-scroll {

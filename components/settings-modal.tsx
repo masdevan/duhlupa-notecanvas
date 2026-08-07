@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import ColorPicker from "./color-picker";
 import ConfirmDialog from "./confirm-dialog";
+import IconChevronDown from "./icons/chevron-down";
 import IconClose from "./icons/close";
 import { isValidState } from "../lib/storage";
 import type { AppState } from "../lib/types";
@@ -10,7 +11,9 @@ import type { AppState } from "../lib/types";
 type SettingsModalProps = {
   accentColor: string;
   textColor: string;
+  fontFamily: string;
   onSaveColors: (accent: string, text: string) => void;
+  onFontChange: (font: string) => void;
   onResetAll: () => void;
   onClearAll: () => void;
   onExport: () => void;
@@ -68,7 +71,9 @@ function ColorRow({
 export default function SettingsModal({
   accentColor,
   textColor,
+  fontFamily,
   onSaveColors,
+  onFontChange,
   onResetAll,
   onClearAll,
   onExport,
@@ -82,7 +87,11 @@ export default function SettingsModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [draftAccent, setDraftAccent] = useState(accentColor);
   const [draftText, setDraftText] = useState(textColor);
-  const dirty = draftAccent !== accentColor || draftText !== textColor;
+  const [draftFont, setDraftFont] = useState(fontFamily);
+  const dirty =
+    draftAccent !== accentColor ||
+    draftText !== textColor ||
+    draftFont !== fontFamily;
 
   function close() {
     if (closing) {
@@ -102,6 +111,7 @@ export default function SettingsModal({
 
   function save() {
     onSaveColors(draftAccent, draftText);
+    onFontChange(draftFont);
     close();
   }
 
@@ -109,6 +119,7 @@ export default function SettingsModal({
     onResetAll();
     setDraftAccent("#39bff3");
     setDraftText("#f5f5f5");
+    setDraftFont("mono");
     setDialog(null);
   }
 
@@ -182,6 +193,23 @@ export default function SettingsModal({
             onToggle={() => togglePicker("text")}
             onChange={setDraftText}
           />
+          <div className="flex w-full items-center gap-3">
+            <span className="font-mono text-xs text-foreground/60">Font</span>
+            <div className="relative ml-auto w-[calc(50%-0.25rem)]">
+              <select
+                value={draftFont}
+                onChange={(event) => setDraftFont(event.target.value)}
+                className="h-8 w-full cursor-pointer appearance-none rounded-sm border border-edge bg-transparent pl-3 pr-8 font-mono text-xs text-foreground/50 outline-none transition-colors hover:border-accent hover:text-foreground"
+              >
+                <option value="mono">Mono</option>
+                <option value="sans">Sans</option>
+              </select>
+              <IconChevronDown
+                size={12}
+                className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-foreground/50"
+              />
+            </div>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => setDialog("reset")}

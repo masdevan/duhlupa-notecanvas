@@ -24,6 +24,7 @@ duhlupa/
 │   └── types.ts
 ├── node_modules/
 ├── public/
+│   ├── init.js
 │   └── core/
 │       └── favicon/
 │           ├── apple-touch-icon.png

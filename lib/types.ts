@@ -10,4 +10,5 @@ export type AppState = {
   wrapWidth: number | null;
   accentColor: string;
   textColor: string;
+  fontFamily: string;
 };

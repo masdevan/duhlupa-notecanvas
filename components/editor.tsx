@@ -107,7 +107,7 @@ export default function Editor({
           value={content}
           onChange={(event) => onChange(event.target.value)}
           style={{ fieldSizing: "content" }}
-          className="w-full resize-none bg-transparent px-3 pb-16 pt-6 font-mono text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-foreground/30 sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10 lg:px-14"
+          className="w-full resize-none bg-transparent px-3 pb-16 pt-6 text-sm leading-4 text-foreground caret-accent outline-none placeholder:text-foreground/30 sm:px-6 sm:pb-20 sm:pt-8 sm:text-base sm:leading-5 md:px-10 lg:px-14"
         />
         <div
           onPointerDown={onHandlePointerDown("left")}

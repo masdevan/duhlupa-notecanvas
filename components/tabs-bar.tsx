@@ -10,22 +10,36 @@ import type { AppState } from "../lib/types";
 
 const DEFAULT_ACCENT = "#39bff3";
 const DEFAULT_TEXT = "#f5f5f5";
+const DEFAULT_FONT = "mono";
+
+const FONT_STACKS: Record<string, string> = {
+  mono: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+  sans: "var(--font-roboto), Arial, Helvetica, sans-serif",
+};
 
 function applyColors(accent: string, text: string) {
   document.documentElement.style.setProperty("--color-accent", accent);
   document.documentElement.style.setProperty("--color-foreground", text);
 }
 
+function applyFont(font: string) {
+  const stack = FONT_STACKS[font] ?? FONT_STACKS.mono;
+  document.documentElement.style.setProperty("--font-sans", stack);
+  document.documentElement.style.setProperty("--font-mono", stack);
+  document.documentElement.style.setProperty("--font-editor", stack);
+}
+
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const { tabs, activeId, wrapWidth, accentColor, textColor } = state;
+  const { tabs, activeId, wrapWidth, accentColor, textColor, fontFamily } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
     const next = initialState();
     applyColors(next.accentColor, next.textColor);
+    applyFont(next.fontFamily);
     setState(next);
     setReady(true);
   }, []);
@@ -84,12 +98,19 @@ export default function TabsBar() {
     commit({ ...state, accentColor: accent, textColor: text });
   }
 
+  function updateFont(font: string) {
+    applyFont(font);
+    commit({ ...state, fontFamily: font });
+  }
+
   function resetAllSettings() {
     applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
+    applyFont(DEFAULT_FONT);
     commit({
       ...state,
       accentColor: DEFAULT_ACCENT,
       textColor: DEFAULT_TEXT,
+      fontFamily: DEFAULT_FONT,
       wrapWidth: null,
     });
   }
@@ -99,6 +120,7 @@ export default function TabsBar() {
       localStorage.removeItem("duhlupa-tabs");
     } catch {}
     applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
+    applyFont(DEFAULT_FONT);
     setState(defaultState());
   }
 
@@ -116,6 +138,7 @@ export default function TabsBar() {
 
   function importData(data: AppState) {
     applyColors(data.accentColor, data.textColor);
+    applyFont(data.fontFamily);
     setState(data);
     saveState(data);
   }
@@ -145,7 +168,9 @@ export default function TabsBar() {
         <SettingsModal
           accentColor={accentColor}
           textColor={textColor}
+          fontFamily={fontFamily}
           onSaveColors={updateColors}
+          onFontChange={updateFont}
           onResetAll={resetAllSettings}
           onClearAll={clearAllData}
           onExport={exportData}
