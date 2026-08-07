@@ -86,11 +86,11 @@ export default function TableGrid({
         </button>
       </div>
       <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
-      <table className="w-full table-fixed border-collapse">
+      <table className="w-full table-fixed border-separate border-spacing-0">
         <thead>
           <tr>
             <th
-              className="border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
+              className="sticky left-0 z-10 border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
               style={{
                 width: `${Math.max(32, String(table.rows.length).length * 9 + 18)}px`,
               }}
@@ -124,7 +124,7 @@ export default function TableGrid({
           {table.rows.map((row, r) => (
             <tr key={r}>
               <td
-                className="group relative border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
+                className="group sticky left-0 z-10 border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
                 style={{
                   width: `${Math.max(32, String(table.rows.length).length * 9 + 18)}px`,
                 }}

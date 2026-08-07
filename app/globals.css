@@ -114,6 +114,7 @@ select option {
 
 .settings-btn {
   left: 0;
+  z-index: 30;
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
 }
