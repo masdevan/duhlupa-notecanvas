@@ -77,7 +77,7 @@ export default function TabStrip({
             }}
               className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
                 isActive
-                  ? "border-t-accent bg-tab-active text-foreground/18"
+                  ? "border-t-accent bg-tab-active text-foreground/20"
                   : "border-t-transparent text-foreground/10 hover:bg-tab-active/50 hover:text-foreground"
               }`}
           >

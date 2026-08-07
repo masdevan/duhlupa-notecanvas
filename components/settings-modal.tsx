@@ -90,7 +90,7 @@ export default function SettingsModal({
           event.stopPropagation();
           setPickerOpen(null);
         }}
-        className={`w-full max-w-md rounded-sm border border-edge bg-raised p-6 shadow-2xl ${
+        className={`w-[calc(100%-2rem)] max-w-md rounded-sm border border-edge bg-raised p-5 shadow-2xl sm:p-6 ${
           closing ? "modal-panel-out" : "modal-panel"
         }`}
       >
