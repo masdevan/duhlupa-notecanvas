@@ -8,11 +8,17 @@ duhlupa/
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
+│   ├── editor.tsx
 │   ├── icons/
 │   │   ├── close.tsx
 │   │   ├── plus.tsx
 │   │   └── settings.tsx
+│   ├── settings-button.tsx
+│   ├── tab-strip.tsx
 │   └── tabs-bar.tsx
+├── lib/
+│   ├── storage.ts
+│   └── types.ts
 ├── node_modules/
 ├── public/
 │   └── core/
