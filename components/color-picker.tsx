@@ -157,8 +157,8 @@ export default function ColorPicker({
         >
           <IconClose size={12} />
         </button>
-        <div className="flex max-h-[80dvh] flex-col items-stretch gap-4 overflow-y-auto p-4 sm:p-5">
-        <div className="flex flex-row items-center gap-4 sm:gap-5">
+        <div className="flex max-h-[80dvh] flex-col items-stretch gap-3 overflow-y-auto p-3 sm:gap-4 sm:p-5">
+        <div className="flex flex-row items-center gap-3 sm:gap-5">
           <div
             ref={ringRef}
             onPointerDown={(event) => {
@@ -177,7 +177,7 @@ export default function ColorPicker({
             onPointerCancel={() => {
               dragging.current = false;
             }}
-            className="relative h-32 w-32 cursor-pointer touch-none rounded-full sm:h-36 sm:w-36"
+            className="relative h-28 w-28 cursor-pointer touch-none rounded-full sm:h-36 sm:w-36"
             style={{
               background:
                 "radial-gradient(circle, #121212 0 39.5%, transparent 40.5%), conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
@@ -210,7 +210,7 @@ export default function ColorPicker({
             onPointerCancel={() => {
               dragging.current = false;
             }}
-            className="relative h-32 w-32 cursor-pointer touch-none rounded-sm sm:h-36 sm:w-40"
+            className="relative h-28 w-28 cursor-pointer touch-none rounded-sm sm:h-36 sm:w-40"
             style={{
               background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hue} 100% 50%))`,
             }}

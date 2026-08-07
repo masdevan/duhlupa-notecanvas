@@ -58,7 +58,7 @@ export default function TabStrip({
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
-      className="no-scrollbar flex h-10 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar sm:h-9"
+      className="no-scrollbar flex h-8 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar sm:h-9"
     >
       {tabs.map((tab, index) => {
         const isActive = tab.id === activeId;
@@ -75,7 +75,7 @@ export default function TabStrip({
                 onSelect(tab.id);
               }
             }}
-              className={`group relative flex h-full w-40 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors ${borderClasses} ${
+              className={`group relative flex h-full w-32 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors sm:w-40 ${borderClasses} ${
                 isActive
                   ? "border-t-accent bg-tab-active text-foreground/50"
                   : "border-t-transparent text-foreground/40 hover:bg-tab-active/50 hover:text-foreground"
