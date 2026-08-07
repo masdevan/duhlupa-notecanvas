@@ -2,12 +2,14 @@
 
 import { useRef } from "react";
 import IconPlus from "../icons/plus";
+import IconTrash from "../icons/trash";
 import type { TableTab } from "../../lib/types";
 type TableGridProps = {
   table: TableTab;
   onRenameColumn: (index: number, name: string) => void;
   onAddColumn: () => void;
   onAddRow: () => void;
+  onRemoveRow: (index: number) => void;
   onResizeColumn: (index: number, width: number) => void;
   onUpdateCell: (row: number, col: number, value: string) => void;
 };
@@ -17,6 +19,7 @@ export default function TableGrid({
   onRenameColumn,
   onAddColumn,
   onAddRow,
+  onRemoveRow,
   onResizeColumn,
   onUpdateCell,
 }: TableGridProps) {
@@ -121,12 +124,19 @@ export default function TableGrid({
           {table.rows.map((row, r) => (
             <tr key={r}>
               <td
-                className="border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
+                className="group relative border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
                 style={{
                   width: `${Math.max(32, String(table.rows.length).length * 9 + 18)}px`,
                 }}
               >
-                {r + 1}
+                <span className="group-hover:hidden">{r + 1}</span>
+                <button
+                  onClick={() => onRemoveRow(r)}
+                  aria-label="Delete row"
+                  className="absolute inset-0 hidden cursor-pointer items-center justify-center text-red-400 transition-colors group-hover:flex hover:text-red-500"
+                >
+                  <IconTrash size={12} />
+                </button>
               </td>
               {row.map((cell, c) => (
                 <td key={c} className="border-b border-r border-edge p-1">

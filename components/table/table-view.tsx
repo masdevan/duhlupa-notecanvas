@@ -160,6 +160,13 @@ export default function TableView() {
     }));
   }
 
+  function removeRow(index: number) {
+    updateActive((table) => ({
+      ...table,
+      rows: table.rows.filter((_, i) => i !== index),
+    }));
+  }
+
   function updateCell(rowIndex: number, colIndex: number, value: string) {
     updateActive((table) => ({
       ...table,
@@ -201,6 +208,7 @@ export default function TableView() {
           onRenameColumn={renameColumn}
           onAddColumn={addColumn}
           onAddRow={() => setRowModalOpen(true)}
+          onRemoveRow={removeRow}
           onResizeColumn={resizeColumn}
           onUpdateCell={updateCell}
         />

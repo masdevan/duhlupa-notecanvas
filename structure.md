@@ -18,6 +18,7 @@ duhlupa/
 │   │   ├── plus.tsx
 │   │   ├── settings.tsx
 │   │   ├── table.tsx
+│   │   ├── trash.tsx
 │   │   └── write.tsx
 │   ├── settings-button.tsx
 │   ├── settings-modal.tsx
