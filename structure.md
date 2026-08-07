@@ -25,6 +25,9 @@ duhlupa/
 │   ├── sidebar.tsx
 │   ├── tab-strip.tsx
 │   ├── table/
+│   │   ├── table-empty-state.tsx
+│   │   ├── table-grid.tsx
+│   │   ├── table-name-modal.tsx
 │   │   └── table-view.tsx
 │   └── write/
 │       ├── editor.tsx

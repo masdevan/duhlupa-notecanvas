@@ -74,6 +74,9 @@ function isValidTablesState(value: unknown): value is TablesState {
         typeof tab.id === "number" &&
         (typeof tab.name === "string" || tab.name === undefined) &&
         Array.isArray(tab.columns) &&
+        (tab.colWidths === undefined ||
+          (Array.isArray(tab.colWidths) &&
+            tab.colWidths.every((w) => typeof w === "number"))) &&
         tab.columns.every((c) => typeof c === "string") &&
         Array.isArray(tab.rows) &&
         tab.rows.every(
@@ -90,7 +93,13 @@ function isValidTablesState(value: unknown): value is TablesState {
 export function defaultTablesState(): TablesState {
   return {
     tables: [
-      { id: 1, name: "Untitled", columns: ["Column 1"], rows: [[""]] },
+      {
+        id: 1,
+        name: "Untitled",
+        columns: ["Column 1"],
+        colWidths: [200],
+        rows: [[""]],
+      },
     ],
     activeId: 1,
     counter: 1,
@@ -110,6 +119,9 @@ export function initialTablesState(): TablesState {
             typeof table.name === "string"
               ? table.name
               : (table.columns[0] ?? "Untitled"),
+          colWidths: Array.isArray(table.colWidths)
+            ? table.colWidths
+            : table.columns.map(() => 200),
         })),
       };
     }

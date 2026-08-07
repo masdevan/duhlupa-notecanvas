@@ -7,6 +7,7 @@ export type TableTab = {
   id: number;
   name: string;
   columns: string[];
+  colWidths: number[];
   rows: string[][];
 };
 
