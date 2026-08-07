@@ -130,17 +130,18 @@ export default function ColorPicker({
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className={`relative flex max-h-[90dvh] flex-col items-stretch gap-4 overflow-y-auto rounded-sm border border-edge bg-raised p-4 shadow-2xl sm:p-5 ${
+        className={`relative rounded-sm border border-edge bg-raised shadow-2xl ${
           closing ? "modal-panel-out" : "modal-panel"
         }`}
       >
         <button
           onClick={requestClose}
           aria-label="Close color picker"
-          className="absolute -right-2 -top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-edge bg-raised text-muted shadow transition-colors hover:text-foreground"
+          className="absolute -right-2 -top-2 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-edge bg-raised text-muted shadow transition-colors hover:text-foreground"
         >
           <IconClose size={12} />
         </button>
+        <div className="flex max-h-[80dvh] flex-col items-stretch gap-4 overflow-y-auto p-4 sm:p-5">
         <div className="flex flex-row items-center gap-4 sm:gap-5">
           <div
             ref={ringRef}
@@ -221,6 +222,7 @@ export default function ColorPicker({
           >
             Save
           </button>
+        </div>
         </div>
       </div>
     </div>
