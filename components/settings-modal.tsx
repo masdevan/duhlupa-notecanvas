@@ -238,7 +238,7 @@ export default function SettingsModal({
               step={0.5}
               value={draftSpacing}
               onChange={(event) => setDraftSpacing(Number(event.target.value))}
-              className="ml-auto h-8 w-[calc(50%-4rem)] cursor-pointer accent-[var(--color-accent)]"
+              className="ml-auto h-8 w-[calc(50%-4rem)] cursor-pointer accent-accent"
             />
             <span className="w-12 text-right font-mono text-xs text-foreground/50">
               {draftSpacing}px
