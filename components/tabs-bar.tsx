@@ -8,6 +8,14 @@ import TabStrip from "./tab-strip";
 import { defaultState, initialState, saveState } from "../lib/storage";
 import type { AppState } from "../lib/types";
 
+const DEFAULT_ACCENT = "#39bff3";
+const DEFAULT_TEXT = "#f5f5f5";
+
+function applyColors(accent: string, text: string) {
+  document.documentElement.style.setProperty("--color-accent", accent);
+  document.documentElement.style.setProperty("--color-foreground", text);
+}
+
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
@@ -16,20 +24,11 @@ export default function TabsBar() {
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
-    setState(initialState());
+    const next = initialState();
+    applyColors(next.accentColor, next.textColor);
+    setState(next);
     setReady(true);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty("--color-accent", accentColor);
-  }, [accentColor]);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--color-foreground",
-      textColor,
-    );
-  }, [textColor]);
 
   function commit(next: AppState) {
     setState(next);
@@ -81,14 +80,16 @@ export default function TabsBar() {
   }
 
   function updateColors(accent: string, text: string) {
+    applyColors(accent, text);
     commit({ ...state, accentColor: accent, textColor: text });
   }
 
   function resetAllSettings() {
+    applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
     commit({
       ...state,
-      accentColor: "#39bff3",
-      textColor: "#f5f5f5",
+      accentColor: DEFAULT_ACCENT,
+      textColor: DEFAULT_TEXT,
       wrapWidth: null,
     });
   }
@@ -97,6 +98,7 @@ export default function TabsBar() {
     try {
       localStorage.removeItem("duhlupa-tabs");
     } catch {}
+    applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
     setState(defaultState());
   }
 
@@ -113,6 +115,7 @@ export default function TabsBar() {
   }
 
   function importData(data: AppState) {
+    applyColors(data.accentColor, data.textColor);
     setState(data);
     saveState(data);
   }
