@@ -127,15 +127,6 @@ export default function TableView() {
     }));
   }
 
-  function removeColumn(index: number) {
-    updateActive((table) => ({
-      ...table,
-      columns: table.columns.filter((_, i) => i !== index),
-      colWidths: table.colWidths.filter((_, i) => i !== index),
-      rows: table.rows.map((row) => row.filter((_, i) => i !== index)),
-    }));
-  }
-
   function renameColumn(index: number, name: string) {
     updateActive((table) => ({
       ...table,
@@ -147,20 +138,6 @@ export default function TableView() {
     updateActive((table) => ({
       ...table,
       colWidths: table.colWidths.map((w, i) => (i === index ? width : w)),
-    }));
-  }
-
-  function addRow() {
-    updateActive((table) => ({
-      ...table,
-      rows: [...table.rows, table.columns.map(() => "")],
-    }));
-  }
-
-  function removeRow(index: number) {
-    updateActive((table) => ({
-      ...table,
-      rows: table.rows.filter((_, i) => i !== index),
     }));
   }
 
@@ -203,12 +180,9 @@ export default function TableView() {
         <TableGrid
           table={active}
           onRenameColumn={renameColumn}
-          onRemoveColumn={removeColumn}
           onAddColumn={addColumn}
           onResizeColumn={resizeColumn}
           onUpdateCell={updateCell}
-          onAddRow={addRow}
-          onRemoveRow={removeRow}
         />
       ) : (
         <TableEmptyState onCreate={addTable} />
