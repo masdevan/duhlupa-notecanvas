@@ -1,4 +1,4 @@
-<p align="center">
+<p align="left">
   <img src="public/core/logo.png" alt="Duhlupa logo" width="64" />
 </p>
 
