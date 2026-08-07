@@ -103,7 +103,7 @@ export default function TableGrid({
                 <input
                   value={column}
                   onChange={(event) => onRenameColumn(i, event.target.value)}
-                  className="w-full min-w-0 bg-transparent font-mono text-xs text-foreground outline-none"
+                  className="w-full min-w-0 bg-transparent font-mono text-xs font-semibold text-foreground outline-none"
                 />
                 <div
                   onPointerDown={startResize(i)}
@@ -135,7 +135,7 @@ export default function TableGrid({
                     onChange={(event) =>
                       onUpdateCell(r, c, event.target.value)
                     }
-                    className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground outline-none"
+                    className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground/55 outline-none"
                   />
                   </td>
                 ))}
