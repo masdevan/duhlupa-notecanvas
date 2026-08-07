@@ -52,7 +52,7 @@ export default function TableGrid({
       return;
     }
     const width = Math.min(
-      Math.max(resize.startWidth + (event.clientX - resize.startX), 80),
+      Math.max(resize.startWidth + (event.clientX - resize.startX), 200),
       600,
     );
     onResizeColumn(resize.index, width);
@@ -67,11 +67,19 @@ export default function TableGrid({
       <table className="w-full table-fixed border-collapse">
         <thead>
           <tr>
+            <th
+              className="border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
+              style={{
+                width: `${Math.max(32, String(table.rows.length).length * 9 + 18)}px`,
+              }}
+            >
+              #
+            </th>
             {table.columns.map((column, i) => (
               <th
                 key={i}
                 className="relative border-b border-r border-edge p-2"
-                style={{ width: table.colWidths[i] ?? 200 }}
+                style={{ width: table.colWidths[i] ?? 200, minWidth: 200 }}
               >
                 <input
                   value={column}
@@ -87,7 +95,7 @@ export default function TableGrid({
                 />
               </th>
             ))}
-            <th className="w-11 border-b border-r border-edge p-2">
+            <th className="min-w-11 border-b border-r border-edge p-2">
               <button
                 onClick={handleAddColumn}
                 aria-label="Add column"
@@ -101,6 +109,14 @@ export default function TableGrid({
         <tbody>
           {table.rows.map((row, r) => (
             <tr key={r}>
+              <td
+                className="border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
+                style={{
+                  width: `${Math.max(32, String(table.rows.length).length * 9 + 18)}px`,
+                }}
+              >
+                {r + 1}
+              </td>
               {row.map((cell, c) => (
                 <td key={c} className="border-b border-r border-edge p-1">
                   <input
@@ -112,7 +128,7 @@ export default function TableGrid({
                   />
                 </td>
               ))}
-              <td className="w-11 border-b border-r border-edge" />
+              <td className="min-w-11 border-b border-r border-edge" />
             </tr>
           ))}
         </tbody>
