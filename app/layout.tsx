@@ -36,19 +36,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           crossOrigin="anonymous"
         />
         <style>{`@font-face {
-  font-family: "Roboto";
-  src: url(/fonts/roboto.woff2) format("woff2");
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: block;
-}
-@font-face {
-  font-family: "Rouge Script";
-  src: url(/fonts/rouge-script.woff2) format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: block;
-}`}</style>
+          font-family: "Roboto";
+          src: url(/fonts/roboto.woff2) format("woff2");
+          font-weight: 400 700;
+          font-style: normal;
+          font-display: block;
+        }
+        @font-face {
+          font-family: "Rouge Script";
+          src: url(/fonts/rouge-script.woff2) format("woff2");
+          font-weight: 400;
+          font-style: normal;
+          font-display: block;
+        }`}</style>
         <Script src="/init.js" strategy="beforeInteractive" />
       </head>
       <body className="flex min-h-full flex-col">{children}</body>
