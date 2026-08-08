@@ -21,6 +21,20 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className="h-full antialiased"
     >
       <head>
+        <link
+          rel="preload"
+          href="/fonts/roboto.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/rouge-script.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <style>{`@font-face {
   font-family: "Roboto";
   src: url(/fonts/roboto.woff2) format("woff2");
