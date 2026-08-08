@@ -2,6 +2,21 @@ import type { AppState, Tab, TablesState, TableTab } from "./types";
 
 const STORAGE_KEY = "duhlupa-tabs";
 const TABLES_KEY = "duhlupa-tables";
+const WRAP_KEY = "duhlupa-wrap";
+
+export function loadWrapPreference(): boolean {
+  try {
+    return localStorage.getItem(WRAP_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function saveWrapPreference(enabled: boolean) {
+  try {
+    localStorage.setItem(WRAP_KEY, enabled ? "1" : "0");
+  } catch {}
+}
 
 export function isValidState(value: unknown): value is AppState {
   if (!value || typeof value !== "object") {

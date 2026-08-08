@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import IconPlus from "../icons/plus";
 import IconTrash from "../icons/trash";
+import { loadWrapPreference, saveWrapPreference } from "../../lib/storage";
 import type { TableTab } from "../../lib/types";
 type TableGridProps = {
   table: TableTab;
@@ -33,6 +34,20 @@ export default function TableGrid({
     row: number;
     col: number;
   } | null>(null);
+  const [wrapText, setWrapText] = useState(loadWrapPreference);
+
+  function toggleWrap() {
+    setWrapText((wrap) => {
+      saveWrapPreference(!wrap);
+      return !wrap;
+    });
+  }
+
+  function isOverflowing(row: number, col: number) {
+    const cell = table.rows[row]?.[col] ?? "";
+    const width = table.colWidths[col] ?? 200;
+    return cell.length * 7.2 + 16 > width;
+  }
 
   function handleAddColumn() {
     onAddColumn();
@@ -72,9 +87,7 @@ export default function TableGrid({
   }
 
   function handleCellDoubleClick(row: number, col: number) {
-    const cell = table.rows[row]?.[col] ?? "";
-    const width = table.colWidths[col] ?? 200;
-    if (cell.length * 7.2 + 16 > width) {
+    if (!wrapText && isOverflowing(row, col)) {
       setExpandedCell({ row, col });
     }
   }
@@ -95,6 +108,17 @@ export default function TableGrid({
         >
           <IconPlus size={12} />
           <span className="font-mono text-xs">Add row</span>
+        </button>
+        <button
+          onClick={toggleWrap}
+          aria-pressed={wrapText}
+          className={`flex h-full cursor-pointer items-center border-l border-edge px-3 font-mono text-xs transition-colors ${
+            wrapText
+              ? "bg-tab-active text-foreground"
+              : "text-foreground/40 hover:bg-tab-active hover:text-foreground"
+          }`}
+        >
+          <span>{wrapText ? "Wrap on" : "No wrap"}</span>
         </button>
       </div>
       <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
@@ -136,7 +160,7 @@ export default function TableGrid({
           {table.rows.map((row, r) => (
             <tr key={r}>
               <td
-                className="group sticky left-0 z-10 border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
+                className="group sticky left-0 z-10 border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30 align-top"
                 style={{
                   width: `${Math.max(32, String(table.rows.length).length * 9 + 18)}px`,
                 }}
@@ -154,17 +178,18 @@ export default function TableGrid({
                 <td
                   key={c}
                   onDoubleClick={() => handleCellDoubleClick(r, c)}
-                  className="border-b border-r border-edge p-1"
+                  className="border-b border-r border-edge p-1 align-top"
                 >
-                  {expandedCell?.row === r && expandedCell.col === c ? (
+                  {(!wrapText && expandedCell?.row === r && expandedCell.col === c) ||
+                  (wrapText && isOverflowing(r, c)) ? (
                     <textarea
                       value={cell}
                       onChange={(event) => onUpdateCell(r, c, event.target.value)}
                       onBlur={() => setExpandedCell(null)}
-                      autoFocus
+                      autoFocus={expandedCell?.row === r && expandedCell.col === c}
                       spellCheck={false}
                       rows={5}
-                      className="w-full resize-y bg-transparent px-1 py-1 font-mono text-xs leading-relaxed text-foreground/55 outline-none"
+                      className="w-full resize-y bg-transparent px-1 py-1 font-mono text-xs leading-relaxed !text-foreground/55 caret-accent outline-none"
                     />
                   ) : (
                     <input
@@ -172,7 +197,7 @@ export default function TableGrid({
                       onChange={(event) =>
                         onUpdateCell(r, c, event.target.value)
                       }
-                      className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground/55 outline-none"
+                      className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground/55 caret-accent outline-none"
                     />
                   )}
                   </td>
