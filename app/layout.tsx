@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Roboto } from "next/font/google";
 import "./globals.css";
-
-const roboto = Roboto({
-  variable: "--font-roboto",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 export const metadata: Metadata = {
   title: "Duhlupa",
@@ -21,8 +14,27 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${roboto.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={{ backgroundColor: "#090909" }}
+      className="h-full antialiased"
+    >
       <head>
+        <style>{`@font-face {
+  font-family: "Roboto";
+  src: url(/fonts/roboto.woff2) format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Rouge Script";
+  src: url(/fonts/rouge-script.woff2) format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}`}</style>
         <Script src="/init.js" strategy="beforeInteractive" />
       </head>
       <body className="flex min-h-full flex-col">{children}</body>

@@ -25,10 +25,33 @@ body {
   color: var(--color-foreground);
 }
 
+:root {
+  --font-roboto: "Roboto", Arial, Helvetica, sans-serif;
+}
+
+.font-script {
+  font-family: "Rouge Script", cursive;
+}
+
 textarea {
   background-color: var(--color-card);
   color: var(--color-foreground);
   caret-color: var(--color-accent);
+}
+
+@keyframes wave-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.wave-animate {
+  animation-name: wave-slide;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 .no-scrollbar {
