@@ -3,13 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import IconExclamationCircle from "./icons/exclamation-circle";
 import IconTable from "./icons/table";
 import IconWrite from "./icons/write";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const activeView = pathname === "/table" ? "table" : "write";
+  const activeView =
+    pathname === "/table" ? "table" : pathname === "/landing" ? "landing" : "write";
 
   const nav = (
     <>
@@ -45,6 +47,18 @@ export default function Sidebar() {
           }`}
         >
           <IconTable />
+        </Link>
+        <Link
+          href="/landing"
+          aria-label="Landing"
+          onClick={() => setOpen(false)}
+          className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded transition-colors ${
+            activeView === "landing"
+              ? "bg-tab-active text-foreground"
+              : "text-foreground/50 hover:bg-tab-active/50 hover:text-foreground"
+          }`}
+        >
+          <IconExclamationCircle />
         </Link>
       </nav>
     </>
@@ -92,6 +106,18 @@ export default function Sidebar() {
             >
               <IconTable size={14} />
               <span>Table</span>
+            </Link>
+            <Link
+              href="/landing"
+              onClick={() => setOpen(false)}
+              className={`flex cursor-pointer items-center gap-2 px-3 py-2 font-mono text-xs transition-colors ${
+                activeView === "landing"
+                  ? "bg-tab-active text-foreground"
+                  : "text-foreground/50 hover:bg-tab-active hover:text-foreground"
+              }`}
+            >
+              <IconExclamationCircle size={14} />
+              <span>Landing</span>
             </Link>
           </div>
         </>
