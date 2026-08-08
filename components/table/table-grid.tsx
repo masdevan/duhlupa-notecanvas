@@ -138,7 +138,7 @@ export default function TableGrid({
         </button>
       </div>
       <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
-      <table className="w-full table-fixed border-separate border-spacing-0">
+      <table className="w-max table-fixed border-separate border-spacing-0">
         <thead>
           <tr className="sticky top-0 z-20">
             <th
@@ -158,7 +158,14 @@ export default function TableGrid({
               >
                 <input
                   value={column}
-                  onChange={(event) => onRenameColumn(i, event.target.value)}
+                  onChange={(event) => {
+                    const name = event.target.value;
+                    onRenameColumn(i, name);
+                    const needed = Math.max(200, name.length * 7.2 + 20);
+                    if (needed !== (table.colWidths[i] ?? 200)) {
+                      onResizeColumn(i, needed);
+                    }
+                  }}
                   className="w-full min-w-0 bg-transparent font-mono text-xs font-semibold text-foreground outline-none"
                 />
                 <div
