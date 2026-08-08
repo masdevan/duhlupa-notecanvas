@@ -169,7 +169,7 @@ export default function LandingPage() {
 
       <footer className="bg-[#111111] py-6 text-center">
         <p className="font-mono text-[10px] text-[#f5f5f5]/30">
-          &copy; 2026 Duhlupa
+          &copy; {new Date().getFullYear()} Duhlupa
         </p>
       </footer>
     </main>
