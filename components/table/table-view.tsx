@@ -157,6 +157,16 @@ export default function TableView() {
     });
   }
 
+  function importTable(columns: string[], rows: string[][]) {
+    const safeColumns = columns.length > 0 ? columns : ["Column 1"];
+    updateActive((table) => ({
+      ...table,
+      columns: safeColumns,
+      colWidths: safeColumns.map(() => 200),
+      rows: rows.length > 0 ? rows : [safeColumns.map(() => "")],
+    }));
+  }
+
   function addRow() {
     updateActive((table) => ({
       ...table,
@@ -226,6 +236,7 @@ export default function TableView() {
           onRemoveColumn={removeColumn}
           onResizeColumn={resizeColumn}
           onUpdateCell={updateCell}
+          onImportData={importTable}
         />
       ) : (
         <TableEmptyState onCreate={addTable} />

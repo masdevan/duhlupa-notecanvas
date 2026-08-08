@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import * as XLSX from "xlsx";
 import IconPlus from "../icons/plus";
 import IconTrash from "../icons/trash";
 import { loadWrapPreference, saveWrapPreference } from "../../lib/storage";
@@ -14,6 +15,7 @@ type TableGridProps = {
   onRemoveColumn: (index: number) => void;
   onResizeColumn: (index: number, width: number) => void;
   onUpdateCell: (row: number, col: number, value: string) => void;
+  onImportData: (columns: string[], rows: string[][]) => void;
 };
 
 export default function TableGrid({
@@ -25,6 +27,7 @@ export default function TableGrid({
   onRemoveColumn,
   onResizeColumn,
   onUpdateCell,
+  onImportData,
 }: TableGridProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<{
@@ -57,6 +60,37 @@ export default function TableGrid({
       saveWrapPreference(!wrap);
       return !wrap;
     });
+  }
+
+  function exportXlsx() {
+    const sheet = XLSX.utils.aoa_to_sheet([table.columns, ...table.rows]);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, table.name);
+    XLSX.writeFile(book, `${table.name || "Table"}.xlsx`);
+  }
+
+  function handleImport(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const book = XLSX.read(reader.result, { type: "array" });
+      const sheet = book.Sheets[book.SheetNames[0]];
+      if (!sheet) {
+        return;
+      }
+      const data = XLSX.utils.sheet_to_json<string[]>(sheet, {
+        header: 1,
+        raw: false,
+        defval: "",
+      });
+      const [columns, ...rows] = data;
+      onImportData(columns, rows);
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   function isOverflowing(row: number, col: number) {
@@ -136,6 +170,21 @@ export default function TableGrid({
         >
           <span>{wrapText ? "Wrap on" : "No wrap"}</span>
         </button>
+        <button
+          onClick={exportXlsx}
+          className="flex h-full cursor-pointer items-center border-l border-edge px-3 font-mono text-xs text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
+        >
+          <span>Export XLSX</span>
+        </button>
+        <label className="flex h-full cursor-pointer items-center border-l border-edge px-3 font-mono text-xs text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground">
+          <span>Import XLSX</span>
+          <input
+            type="file"
+            accept=".xlsx"
+            onChange={handleImport}
+            className="hidden"
+          />
+        </label>
       </div>
       <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
       <table className="w-max table-fixed border-separate border-spacing-0">
