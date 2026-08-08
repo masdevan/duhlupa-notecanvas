@@ -70,7 +70,7 @@ export default function TabStrip({
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
-      className="no-scrollbar flex h-8 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar sm:h-9"
+      className="no-scrollbar flex h-8 cursor-grab select-none items-stretch gap-px overflow-x-auto overscroll-x-contain bg-tab-bar pl-9 sm:h-9 md:pl-0"
     >
       {tabs.map((tab, index) => {
         const isActive = tab.id === activeId;

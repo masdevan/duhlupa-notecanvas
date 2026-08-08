@@ -30,6 +30,13 @@ export default function TableGrid({
   onImportData,
 }: TableGridProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const toolbarDrag = useRef({
+    active: false,
+    startX: 0,
+    startScroll: 0,
+    moved: false,
+  });
   const resizeRef = useRef<{
     index: number;
     startX: number;
@@ -108,6 +115,42 @@ export default function TableGrid({
     });
   }
 
+  function startToolbarDrag(event: React.MouseEvent) {
+    toolbarDrag.current = {
+      active: true,
+      startX: event.clientX,
+      startScroll: toolbarRef.current?.scrollLeft ?? 0,
+      moved: false,
+    };
+    toolbarRef.current?.classList.add("cursor-grabbing");
+  }
+
+  function moveToolbarDrag(event: React.MouseEvent) {
+    if (!toolbarDrag.current.active) {
+      return;
+    }
+    const dx = event.clientX - toolbarDrag.current.startX;
+    if (Math.abs(dx) > 4) {
+      toolbarDrag.current.moved = true;
+    }
+    if (toolbarRef.current) {
+      toolbarRef.current.scrollLeft = toolbarDrag.current.startScroll - dx;
+    }
+  }
+
+  function endToolbarDrag() {
+    toolbarDrag.current.active = false;
+    toolbarRef.current?.classList.remove("cursor-grabbing");
+  }
+
+  function suppressDragClick(event: React.MouseEvent) {
+    if (toolbarDrag.current.moved) {
+      event.preventDefault();
+      event.stopPropagation();
+      toolbarDrag.current.moved = false;
+    }
+  }
+
   function startResize(index: number) {
     return (event: React.PointerEvent) => {
       event.preventDefault();
@@ -144,17 +187,25 @@ export default function TableGrid({
 
   return (
     <>
-      <div className="flex h-8.5 shrink-0 items-center border-b border-t border-edge bg-[#0c0c0c]">
+      <div
+        ref={toolbarRef}
+        onMouseDown={startToolbarDrag}
+        onMouseMove={moveToolbarDrag}
+        onMouseUp={endToolbarDrag}
+        onMouseLeave={endToolbarDrag}
+        onClickCapture={suppressDragClick}
+        className="no-scrollbar flex h-8.5 shrink-0 cursor-grab select-none items-center overflow-x-auto border-b border-t border-edge bg-[#0c0c0c]"
+      >
         <button
           onClick={handleAddColumn}
-          className="flex h-full cursor-pointer items-center gap-2 border-r border-edge px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
+          className="flex h-full shrink-0 cursor-pointer items-center gap-2 border-r border-edge px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
         >
           <IconPlus size={12} />
           <span className="font-mono text-xs">Add column</span>
         </button>
         <button
           onClick={onAddRow}
-          className="flex h-full cursor-pointer items-center gap-2 px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
+          className="flex h-full shrink-0 cursor-pointer items-center gap-2 px-3 text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
         >
           <IconPlus size={12} />
           <span className="font-mono text-xs">Add row</span>
@@ -162,7 +213,7 @@ export default function TableGrid({
         <button
           onClick={toggleWrap}
           aria-pressed={wrapText}
-          className={`flex h-full cursor-pointer items-center border-l border-edge px-3 font-mono text-xs transition-colors ${
+          className={`flex h-full shrink-0 cursor-pointer items-center border-l border-edge px-3 font-mono text-xs transition-colors ${
             wrapText
               ? "bg-tab-active text-foreground"
               : "text-foreground/40 hover:bg-tab-active hover:text-foreground"
@@ -172,11 +223,11 @@ export default function TableGrid({
         </button>
         <button
           onClick={exportXlsx}
-          className="flex h-full cursor-pointer items-center border-l border-edge px-3 font-mono text-xs text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
+          className="flex h-full shrink-0 cursor-pointer items-center border-l border-edge px-3 font-mono text-xs text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground"
         >
           <span>Export XLSX</span>
         </button>
-        <label className="flex h-full cursor-pointer items-center border-l border-edge px-3 font-mono text-xs text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground">
+        <label className="flex h-full shrink-0 cursor-pointer items-center border-l border-edge px-3 font-mono text-xs text-foreground/40 transition-colors hover:bg-tab-active hover:text-foreground">
           <span>Import XLSX</span>
           <input
             type="file"
