@@ -91,9 +91,9 @@ export default function TableGrid({
     if (!resize) {
       return;
     }
-    const width = Math.min(
-      Math.max(resize.startWidth + (event.clientX - resize.startX), 200),
-      600,
+    const width = Math.max(
+      resize.startWidth + (event.clientX - resize.startX),
+      200,
     );
     onResizeColumn(resize.index, width);
   }
