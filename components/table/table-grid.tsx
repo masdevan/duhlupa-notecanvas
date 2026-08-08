@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import IconPlus from "../icons/plus";
 import IconTrash from "../icons/trash";
 import type { TableTab } from "../../lib/types";
@@ -28,6 +28,10 @@ export default function TableGrid({
     index: number;
     startX: number;
     startWidth: number;
+  } | null>(null);
+  const [expandedCell, setExpandedCell] = useState<{
+    row: number;
+    col: number;
   } | null>(null);
 
   function handleAddColumn() {
@@ -65,6 +69,14 @@ export default function TableGrid({
 
   function endResize() {
     resizeRef.current = null;
+  }
+
+  function handleCellDoubleClick(row: number, col: number) {
+    const cell = table.rows[row]?.[col] ?? "";
+    const width = table.colWidths[col] ?? 200;
+    if (cell.length * 7.2 + 16 > width) {
+      setExpandedCell({ row, col });
+    }
   }
 
   return (
@@ -139,14 +151,30 @@ export default function TableGrid({
                 </button>
               </td>
               {row.map((cell, c) => (
-                <td key={c} className="border-b border-r border-edge p-1">
-                  <input
-                    value={cell}
-                    onChange={(event) =>
-                      onUpdateCell(r, c, event.target.value)
-                    }
-                    className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground/55 outline-none"
-                  />
+                <td
+                  key={c}
+                  onDoubleClick={() => handleCellDoubleClick(r, c)}
+                  className="border-b border-r border-edge p-1"
+                >
+                  {expandedCell?.row === r && expandedCell.col === c ? (
+                    <textarea
+                      value={cell}
+                      onChange={(event) => onUpdateCell(r, c, event.target.value)}
+                      onBlur={() => setExpandedCell(null)}
+                      autoFocus
+                      spellCheck={false}
+                      rows={5}
+                      className="w-full resize-y bg-transparent px-1 py-1 font-mono text-xs leading-relaxed text-foreground/55 outline-none"
+                    />
+                  ) : (
+                    <input
+                      value={cell}
+                      onChange={(event) =>
+                        onUpdateCell(r, c, event.target.value)
+                      }
+                      className="w-full min-w-0 bg-transparent px-1 py-1 font-mono text-xs text-foreground/55 outline-none"
+                    />
+                  )}
                   </td>
                 ))}
               <td className="border-b border-r border-edge" />
