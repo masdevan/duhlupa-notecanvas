@@ -43,7 +43,15 @@ function applyLetterSpacing(spacing: number) {
 
 function mergeSettings(
   partial: Partial<
-    Pick<AppState, "accentColor" | "textColor" | "fontFamily" | "wrapWidth">
+    Pick<
+      AppState,
+      | "accentColor"
+      | "textColor"
+      | "fontFamily"
+      | "wrapWidth"
+      | "letterSpacing"
+      | "contentPosition"
+    >
   >,
 ) {
   return { ...initialState(), ...partial };
@@ -84,7 +92,7 @@ export default function Settings() {
   }
 
   function saveFont(font: string) {
-    mergeSettings({ fontFamily: font });
+    saveState(mergeSettings({ fontFamily: font }));
     applyFont(font);
     setFontFamily(font);
   }
