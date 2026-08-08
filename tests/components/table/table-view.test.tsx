@@ -1,34 +1,39 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import TableView from "../../../components/table/table-view";
+import {
+  clearAllData,
+  initStorage,
+  initialTablesState,
+} from "../../../lib/storage";
 
 describe("TableView", () => {
-  beforeEach(() => {
-    localStorage.clear();
+  beforeEach(async () => {
+    await clearAllData();
   });
 
-  it("renders the default table with one column and one row", () => {
+  it("renders the default table with one column and one row", async () => {
     render(<TableView />);
-    expect(screen.getByDisplayValue("Column 1")).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("Column 1")).toBeInTheDocument();
     expect(screen.getByText("Add column")).toBeInTheDocument();
   });
 
-  it("adds a column", () => {
+  it("adds a column", async () => {
     render(<TableView />);
-    fireEvent.click(screen.getByText("Add column"));
-    expect(screen.getByDisplayValue("Column 2")).toBeInTheDocument();
+    fireEvent.click(await screen.findByText("Add column"));
+    expect(await screen.findByDisplayValue("Column 2")).toBeInTheDocument();
   });
 
-  it("edits a cell", () => {
+  it("edits a cell", async () => {
     render(<TableView />);
-    const cell = screen.getAllByRole("textbox")[1];
-    fireEvent.change(cell, { target: { value: "hello" } });
+    const textboxes = await screen.findAllByRole("textbox");
+    fireEvent.change(textboxes[1], { target: { value: "hello" } });
     expect(screen.getByDisplayValue("hello")).toBeInTheDocument();
   });
 
-  it("renames the table via double click on the tab", () => {
+  it("renames the table via double click on the tab", async () => {
     render(<TableView />);
-    const tab = screen.getByText("Untitled");
+    const tab = await screen.findByText("Untitled");
     fireEvent.doubleClick(tab);
     const input = screen.getByDisplayValue("Untitled");
     fireEvent.change(input, { target: { value: "Renamed" } });
@@ -36,10 +41,11 @@ describe("TableView", () => {
     expect(screen.getByText("Renamed")).toBeInTheDocument();
   });
 
-  it("persists changes to localStorage", () => {
+  it("persists changes to indexeddb", async () => {
     render(<TableView />);
-    fireEvent.click(screen.getByText("Add column"));
-    const stored = JSON.parse(localStorage.getItem("duhlupa-tables")!);
+    fireEvent.click(await screen.findByText("Add column"));
+    await initStorage();
+    const stored = initialTablesState();
     expect(stored.tables[0].columns).toEqual(["Column 1", "Column 2"]);
   });
 });

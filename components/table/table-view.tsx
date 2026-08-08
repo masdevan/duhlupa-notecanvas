@@ -9,6 +9,7 @@ import TableGrid from "./table-grid";
 import TableNameModal from "./table-name-modal";
 import {
   defaultTablesState,
+  initStorage,
   initialTablesState,
   saveTablesState,
 } from "../../lib/storage";
@@ -25,13 +26,15 @@ export default function TableView() {
   const active = state.tables.find((table) => table.id === state.activeId) ?? null;
 
   useEffect(() => {
-    setState(initialTablesState());
-    setReady(true);
+    initStorage().then(() => {
+      setState(initialTablesState());
+      setReady(true);
+    });
   }, []);
 
   useEffect(() => {
     function reload() {
-      setState(initialTablesState());
+      initStorage().then(() => setState(initialTablesState()));
     }
     window.addEventListener("duhlupa-data-changed", reload);
     return () => window.removeEventListener("duhlupa-data-changed", reload);

@@ -1,5 +1,5 @@
 try {
-  var s = localStorage.getItem("duhlupa-tabs");
+  var s = localStorage.getItem("duhlupa-settings");
   if (s) {
     var d = JSON.parse(s);
     if (typeof d.accentColor === "string") {

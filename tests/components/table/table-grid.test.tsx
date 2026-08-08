@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import * as XLSX from "xlsx";
 import TableGrid from "../../../components/table/table-grid";
+import {
+  clearAllData,
+  initStorage,
+  loadWrapPreference,
+} from "../../../lib/storage";
 
 const table = {
   id: 1,
@@ -30,8 +35,8 @@ function renderGrid(overrides: Partial<typeof handlers> = {}) {
 }
 
 describe("TableGrid", () => {
-  beforeEach(() => {
-    localStorage.clear();
+  beforeEach(async () => {
+    await clearAllData();
     vi.clearAllMocks();
   });
 
@@ -78,10 +83,11 @@ describe("TableGrid", () => {
     expect(screen.getByDisplayValue("short").tagName).toBe("INPUT");
   });
 
-  it("persists the wrap toggle", () => {
+  it("persists the wrap toggle", async () => {
     renderGrid();
     fireEvent.click(screen.getByText("No wrap"));
-    expect(localStorage.getItem("duhlupa-wrap")).toBe("1");
+    await initStorage();
+    expect(loadWrapPreference()).toBe(true);
     expect(screen.getByText("Wrap on")).toBeInTheDocument();
   });
 

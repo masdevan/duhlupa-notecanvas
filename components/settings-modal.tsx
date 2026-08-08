@@ -5,8 +5,7 @@ import ColorPicker from "./color-picker";
 import ConfirmDialog from "./confirm-dialog";
 import IconChevronDown from "./icons/chevron-down";
 import IconClose from "./icons/close";
-import { isValidState } from "../lib/storage";
-import type { AppState } from "../lib/types";
+import { isValidBackup } from "../lib/storage";
 
 type SettingsModalProps = {
   accentColor: string;
@@ -21,7 +20,7 @@ type SettingsModalProps = {
   onResetAll: () => void;
   onClearAll: () => void;
   onExport: () => void;
-  onImport: (data: AppState) => void;
+  onImport: (data: unknown) => void;
   onClose: () => void;
 };
 
@@ -153,7 +152,7 @@ export default function SettingsModal({
       .text()
       .then((text) => {
         const data = JSON.parse(text);
-        if (!isValidState(data)) {
+        if (!isValidBackup(data)) {
           setImportError(true);
           return;
         }

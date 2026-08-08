@@ -15,7 +15,7 @@ A minimal tabbed notepad that runs entirely in your browser. Write in multiple t
 - Font choice: Mono or Sans
 - Settings modal with save / reset / unsaved-changes guard
 - Export & import all data as JSON backup
-- Auto-save everything to localStorage, loaded before first paint (no flash)
+- Auto-save everything to IndexedDB; appearance settings (colors/font) in localStorage, applied before first paint (no flash)
 - Fully responsive (mobile / tablet / desktop)
 
 ## Tech Stack

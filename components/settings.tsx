@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import SettingsButton from "./settings-button";
 import SettingsModal from "./settings-modal";
-import { defaultState, initialState, saveState } from "../lib/storage";
+import {
+  buildBackup,
+  clearAllData,
+  importBackup,
+  initStorage,
+  initialState,
+  saveState,
+} from "../lib/storage";
 import type { AppState } from "../lib/types";
 
 const DEFAULT_ACCENT = "#39bff3";
@@ -67,17 +74,19 @@ export default function Settings() {
   const [contentPosition, setContentPosition] = useState<"left" | "right">("left");
 
   useEffect(() => {
-    const next = initialState();
-    setAccentColor(next.accentColor);
-    setTextColor(next.textColor);
-    setFontFamily(next.fontFamily);
-    setLetterSpacing(next.letterSpacing);
-    setContentPosition(next.contentPosition);
-    applyColors(next.accentColor, next.textColor);
-    applyFont(next.fontFamily);
-    applyPosition(next.contentPosition);
-    applyLetterSpacing(next.letterSpacing);
-    setReady(true);
+    initStorage().then(() => {
+      const next = initialState();
+      setAccentColor(next.accentColor);
+      setTextColor(next.textColor);
+      setFontFamily(next.fontFamily);
+      setLetterSpacing(next.letterSpacing);
+      setContentPosition(next.contentPosition);
+      applyColors(next.accentColor, next.textColor);
+      applyFont(next.fontFamily);
+      applyPosition(next.contentPosition);
+      applyLetterSpacing(next.letterSpacing);
+      setReady(true);
+    });
   }, []);
 
   if (!ready) {
@@ -126,17 +135,15 @@ export default function Settings() {
   }
 
   function clearAll() {
-    try {
-      localStorage.removeItem("duhlupa-tabs");
-      localStorage.removeItem("duhlupa-tables");
-    } catch {}
-    applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
-    applyFont(DEFAULT_FONT);
-    window.dispatchEvent(new Event("duhlupa-data-changed"));
+    clearAllData().then(() => {
+      applyColors(DEFAULT_ACCENT, DEFAULT_TEXT);
+      applyFont(DEFAULT_FONT);
+      window.dispatchEvent(new Event("duhlupa-data-changed"));
+    });
   }
 
   function exportData() {
-    const blob = new Blob([JSON.stringify(initialState(), null, 2)], {
+    const blob = new Blob([JSON.stringify(buildBackup(), null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -147,13 +154,16 @@ export default function Settings() {
     URL.revokeObjectURL(url);
   }
 
-  function importData(data: AppState) {
-    saveState(data);
-    applyColors(data.accentColor, data.textColor);
-    applyFont(data.fontFamily);
-    setAccentColor(data.accentColor);
-    setTextColor(data.textColor);
-    setFontFamily(data.fontFamily);
+  function importData(data: unknown) {
+    const restored = importBackup(data);
+    if (!restored) {
+      return;
+    }
+    applyColors(restored.accentColor, restored.textColor);
+    applyFont(restored.fontFamily);
+    setAccentColor(restored.accentColor);
+    setTextColor(restored.textColor);
+    setFontFamily(restored.fontFamily);
     window.dispatchEvent(new Event("duhlupa-data-changed"));
   }
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import TabsBar from "../../../components/write/tabs-bar";
+import { clearAllData, initStorage, initialState } from "../../../lib/storage";
 
 vi.mock("next/link", () => ({
   default: ({ children, ...props }: Record<string, unknown>) => (
@@ -13,36 +14,36 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("TabsBar", () => {
-  beforeEach(() => {
-    localStorage.clear();
+  beforeEach(async () => {
+    await clearAllData();
   });
 
-  it("renders the default tab and editor", () => {
+  it("renders the default tab and editor", async () => {
     render(<TabsBar />);
-    expect(screen.getByText("Untitled")).toBeInTheDocument();
+    expect(await screen.findByText("Untitled")).toBeInTheDocument();
     expect(screen.getByLabelText("Note content")).toBeInTheDocument();
   });
 
-  it("adds a tab", () => {
+  it("adds a tab", async () => {
     render(<TabsBar />);
-    fireEvent.click(screen.getByLabelText("New tab"));
+    fireEvent.click(await screen.findByLabelText("New tab"));
     expect(screen.getAllByText(/Untitled/).length).toBeGreaterThan(1);
   });
 
-  it("derives the tab title from the first line", () => {
+  it("derives the tab title from the first line", async () => {
     render(<TabsBar />);
-    fireEvent.change(screen.getByLabelText("Note content"), {
+    fireEvent.change(await screen.findByLabelText("Note content"), {
       target: { value: "My first line\nrest" },
     });
     expect(screen.getByText("My first line")).toBeInTheDocument();
   });
 
-  it("persists state to localStorage", () => {
+  it("persists state to indexeddb", async () => {
     render(<TabsBar />);
-    fireEvent.change(screen.getByLabelText("Note content"), {
+    fireEvent.change(await screen.findByLabelText("Note content"), {
       target: { value: "saved" },
     });
-    const stored = JSON.parse(localStorage.getItem("duhlupa-tabs")!);
-    expect(stored.tabs[0].content).toBe("saved");
+    await initStorage();
+    expect(initialState().tabs[0].content).toBe("saved");
   });
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import SettingsModal from "../../components/settings-modal";
-import type { AppState } from "../../lib/types";
+import type { AppState, TablesState } from "../../lib/types";
 
 const props = {
   accentColor: "#39bff3",
@@ -34,6 +34,18 @@ const backup: AppState = {
   fontFamily: "mono",
   letterSpacing: -0.5,
   contentPosition: "left",
+};
+
+const fullBackup = {
+  app: backup,
+  tables: {
+    tables: [
+      { id: 1, name: "Data", columns: ["A"], colWidths: [200], rows: [["1"]] },
+    ],
+    activeId: 1,
+    counter: 1,
+  } as TablesState,
+  wrap: false,
 };
 
 describe("SettingsModal", () => {
@@ -76,6 +88,19 @@ describe("SettingsModal", () => {
       target: { files: [new File([JSON.stringify(backup)], "backup.json")] },
     });
     await waitFor(() => expect(onImport).toHaveBeenCalledWith(backup));
+  });
+
+  it("imports a full backup file with tables and wrap", async () => {
+    const onImport = vi.fn();
+    const { container } = render(
+      <SettingsModal {...props} onImport={onImport} />,
+    );
+    fireEvent.change(fileInput(container), {
+      target: {
+        files: [new File([JSON.stringify(fullBackup)], "backup.json")],
+      },
+    });
+    await waitFor(() => expect(onImport).toHaveBeenCalledWith(fullBackup));
   });
 
   it("opens reset confirmation and resets on confirm", () => {

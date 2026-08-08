@@ -5,7 +5,7 @@ import Settings from "../settings";
 import Sidebar from "../sidebar";
 import TabStrip from "../tab-strip";
 import Editor from "./editor";
-import { defaultState, initialState, saveState } from "../../lib/storage";
+import { defaultState, initStorage, initialState, saveState } from "../../lib/storage";
 import type { AppState } from "../../lib/types";
 
 export default function TabsBar() {
@@ -15,14 +15,15 @@ export default function TabsBar() {
   const activeTab = tabs.find((tab) => tab.id === activeId);
 
   useEffect(() => {
-    const next = initialState();
-    setState(next);
-    setReady(true);
+    initStorage().then(() => {
+      setState(initialState());
+      setReady(true);
+    });
   }, []);
 
   useEffect(() => {
     function reload() {
-      setState(initialState());
+      initStorage().then(() => setState(initialState()));
     }
     window.addEventListener("duhlupa-data-changed", reload);
     return () => window.removeEventListener("duhlupa-data-changed", reload);

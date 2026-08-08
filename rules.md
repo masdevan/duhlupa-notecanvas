@@ -8,6 +8,7 @@
 - No comments may be left behind in the code
 - Never run endless commands like npm run build and the like
 - Never run commands that have no end or hang until timeout, like npx tsc --noEmit and the like
+- Never run the full test suite (npm test / npx vitest run) — it always looks frozen; verify with targeted commands only (npx vitest run <satu-file>) or not at all
 - Never push to git unless explicitly asked
 - Every commit message must start with a feat: or fix: prefix (init: only for the first commit), followed by a short, clear, concise English description
 - When running tests, keep output short so the terminal never looks frozen: run only the relevant file (php artisan test --filter=...), never pipe output through Select-String (it buffers everything until the process ends), and avoid commands that dump large HTML into the console; if a run gets huge, redirect output to a file instead
