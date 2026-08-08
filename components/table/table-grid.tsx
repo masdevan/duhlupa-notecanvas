@@ -11,6 +11,7 @@ type TableGridProps = {
   onAddColumn: () => void;
   onAddRow: () => void;
   onRemoveRow: (index: number) => void;
+  onRemoveColumn: (index: number) => void;
   onResizeColumn: (index: number, width: number) => void;
   onUpdateCell: (row: number, col: number, value: string) => void;
 };
@@ -21,6 +22,7 @@ export default function TableGrid({
   onAddColumn,
   onAddRow,
   onRemoveRow,
+  onRemoveColumn,
   onResizeColumn,
   onUpdateCell,
 }: TableGridProps) {
@@ -35,6 +37,20 @@ export default function TableGrid({
     col: number;
   } | null>(null);
   const [wrapText, setWrapText] = useState(loadWrapPreference);
+  const [columnMenu, setColumnMenu] = useState<{
+    x: number;
+    y: number;
+    index: number;
+  } | null>(null);
+
+  function openColumnMenu(event: React.MouseEvent, index: number) {
+    event.preventDefault();
+    setColumnMenu({
+      x: Math.min(event.clientX, window.innerWidth - 150),
+      y: Math.min(event.clientY, window.innerHeight - 60),
+      index,
+    });
+  }
 
   function toggleWrap() {
     setWrapText((wrap) => {
@@ -136,6 +152,7 @@ export default function TableGrid({
             {table.columns.map((column, i) => (
               <th
                 key={i}
+                onContextMenu={(event) => openColumnMenu(event, i)}
                 className="relative border-b border-r border-edge bg-[#0c0c0c] p-2"
                 style={{ width: table.colWidths[i] ?? 200, minWidth: 200 }}
               >
@@ -208,6 +225,33 @@ export default function TableGrid({
         </tbody>
       </table>
     </div>
+      {columnMenu && (
+        <>
+          <div
+            className="fixed inset-0 z-60"
+            onClick={() => setColumnMenu(null)}
+            onContextMenu={(event) => {
+              event.preventDefault();
+              setColumnMenu(null);
+            }}
+          />
+          <div
+            className="fixed z-70 rounded-sm border border-edge bg-raised py-1 shadow-2xl"
+            style={{ left: columnMenu.x, top: columnMenu.y }}
+          >
+            <button
+              onClick={() => {
+                onRemoveColumn(columnMenu.index);
+                setColumnMenu(null);
+              }}
+              className="flex w-36 cursor-pointer items-center gap-2 px-3 py-1.5 font-mono text-xs text-red-400 transition-colors hover:bg-tab-active hover:text-red-500"
+            >
+              <IconTrash size={12} />
+              Delete column
+            </button>
+          </div>
+        </>
+      )}
     </>
   );
 }

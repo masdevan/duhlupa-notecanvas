@@ -143,6 +143,20 @@ export default function TableView() {
     }));
   }
 
+  function removeColumn(index: number) {
+    updateActive((table) => {
+      if (table.columns.length <= 1) {
+        return table;
+      }
+      return {
+        ...table,
+        columns: table.columns.filter((_, i) => i !== index),
+        colWidths: table.colWidths.filter((_, i) => i !== index),
+        rows: table.rows.map((row) => row.filter((_, i) => i !== index)),
+      };
+    });
+  }
+
   function addRow() {
     updateActive((table) => ({
       ...table,
@@ -209,6 +223,7 @@ export default function TableView() {
           onAddColumn={addColumn}
           onAddRow={() => setRowModalOpen(true)}
           onRemoveRow={removeRow}
+          onRemoveColumn={removeColumn}
           onResizeColumn={resizeColumn}
           onUpdateCell={updateCell}
         />
