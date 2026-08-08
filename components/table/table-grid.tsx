@@ -124,7 +124,7 @@ export default function TableGrid({
       <div ref={scrollRef} className="editor-scroll min-h-0 flex-1 overflow-auto bg-card">
       <table className="w-full table-fixed border-separate border-spacing-0">
         <thead>
-          <tr>
+          <tr className="sticky top-0 z-20">
             <th
               className="sticky left-0 z-10 border-b border-r border-edge bg-[#0c0c0c] p-1 text-center font-mono text-xs text-foreground/30"
               style={{
@@ -136,7 +136,7 @@ export default function TableGrid({
             {table.columns.map((column, i) => (
               <th
                 key={i}
-                className="relative border-b border-r border-edge p-2"
+                className="relative border-b border-r border-edge bg-[#0c0c0c] p-2"
                 style={{ width: table.colWidths[i] ?? 200, minWidth: 200 }}
               >
                 <input
@@ -153,7 +153,7 @@ export default function TableGrid({
                 />
               </th>
             ))}
-            <th className="border-b border-r border-edge" />
+            <th className="border-b border-r border-edge bg-[#0c0c0c]" />
           </tr>
         </thead>
         <tbody>
