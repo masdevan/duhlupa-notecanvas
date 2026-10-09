@@ -88,7 +88,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/table"
-              className="rounded-full border border-edge bg-raised/60 px-6 py-2.5 font-mono text-sm text-[#f5f5f5]/70 backdrop-blur transition-colors hover:border-accent hover:text-[#f5f5f5]"
+              className="rounded-full border border-edge bg-raised/60 px-6 py-2.5 font-mono text-sm text-foreground/70 backdrop-blur transition-colors hover:border-accent hover:text-foreground"
             >
               Open a table
             </Link>
@@ -110,7 +110,7 @@ export default function LandingPage() {
                   style={{ backgroundImage: SEAMLESS }}
                 />
                 <div className="relative">
-                  <h3 className="font-mono text-sm text-[#f5f5f5]">
+                  <h3 className="font-mono text-sm text-foreground">
                     {feature.title}
                   </h3>
                   <p className="mt-1.5 text-xs leading-snug text-muted">
@@ -137,7 +137,7 @@ export default function LandingPage() {
               {stack.map((item) => (
                 <span
                   key={item}
-                  className="rounded-full border border-edge bg-raised px-3 py-1.5 font-mono text-xs text-[#f5f5f5]/60 transition-colors hover:border-accent/50 hover:text-[#f5f5f5]"
+                  className="rounded-full border border-edge bg-raised px-3 py-1.5 font-mono text-xs text-foreground/60 transition-colors hover:border-accent/50 hover:text-foreground"
                 >
                   {item}
                 </span>
@@ -168,7 +168,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="bg-[#111111] py-6 text-center">
-        <p className="font-mono text-[10px] text-[#f5f5f5]/30">
+        <p className="font-mono text-[10px] text-foreground/30">
           &copy; {new Date().getFullYear()} Duhlupa
         </p>
       </footer>
