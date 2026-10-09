@@ -1,5 +1,7 @@
 import type {
   AppState,
+  GalleryImage,
+  GalleryManifest,
   GalleryState,
   Tab,
   TablesState,
@@ -13,6 +15,7 @@ const TABS_KEY = "tabs";
 const TABLES_KEY = "tables";
 const WRAP_KEY = "wrap";
 const IMAGES_KEY = "images";
+const IMAGE_PREFIX = "image:";
 
 type TabsData = Pick<AppState, "tabs" | "activeId" | "counter" | "wrapWidth">;
 type SettingsData = Pick<
@@ -26,7 +29,7 @@ type SettingsData = Pick<
 
 let tabsCache: TabsData | null = null;
 let tablesCache: TablesState | null = null;
-let galleryCache: GalleryState | null = null;
+let galleryCache: GalleryManifest | null = null;
 let wrapCache: boolean | null = null;
 let writeQueue: Promise<void> = Promise.resolve();
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -62,6 +65,32 @@ async function idbPut(key: string, value: unknown): Promise<void> {
     tx.objectStore(STORE).put({ key, value });
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function idbDelete(key: string): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function idbGetMany(keys: string[]): Promise<unknown[]> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const store = db.transaction(STORE, "readonly").objectStore(STORE);
+    const values = keys.map(
+      (key) =>
+        new Promise<unknown>((resolveOne, rejectOne) => {
+          const request = store.get(key);
+          request.onsuccess = () => resolveOne(request.result?.value);
+          request.onerror = () => rejectOne(request.error);
+        }),
+    );
+    Promise.all(values).then(resolve, reject);
   });
 }
 
@@ -294,17 +323,111 @@ function isValidGalleryState(value: unknown): value is GalleryState {
   );
 }
 
-export function defaultGalleryState(): GalleryState {
-  return { images: [], counter: 0 };
+function isValidManifest(value: unknown): value is GalleryManifest {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const s = value as Record<string, unknown>;
+  return (
+    Array.isArray(s.ids) &&
+    s.ids.every((id) => typeof id === "number") &&
+    typeof s.counter === "number"
+  );
 }
 
-export function initialGalleryState(): GalleryState {
-  return galleryCache ?? defaultGalleryState();
+function imageKey(id: number) {
+  return `${IMAGE_PREFIX}${id}`;
 }
 
-export function saveGalleryState(next: GalleryState): Promise<void> {
+export function defaultGalleryManifest(): GalleryManifest {
+  return { ids: [], counter: 0 };
+}
+
+export function initialGalleryManifest(): GalleryManifest {
+  return galleryCache ?? defaultGalleryManifest();
+}
+
+export function countGalleryImages(): number {
+  return initialGalleryManifest().ids.length;
+}
+
+export async function loadGalleryImages(ids: number[]): Promise<GalleryImage[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+  const values = await idbGetMany(ids.map(imageKey));
+  return values.filter((value): value is GalleryImage => isValidImage(value));
+}
+
+function isValidImage(value: unknown): value is GalleryImage {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const s = value as Record<string, unknown>;
+  return (
+    typeof s.id === "number" &&
+    typeof s.dataUrl === "string" &&
+    typeof s.name === "string" &&
+    typeof s.type === "string"
+  );
+}
+
+export async function loadAllGalleryImages(): Promise<GalleryImage[]> {
+  return loadGalleryImages(initialGalleryManifest().ids);
+}
+
+export function saveGalleryImages(
+  added: GalleryImage[],
+  removedIds: number[] = [],
+  counter?: number,
+): Promise<void> {
+  const current = initialGalleryManifest();
+  const removed = new Set(removedIds);
+  const kept = current.ids.filter((id) => !removed.has(id));
+  const ids = [...added.map((image) => image.id), ...kept];
+  const next: GalleryManifest = {
+    ids,
+    counter: Math.max(counter ?? 0, current.counter, ...ids, 0),
+  };
   galleryCache = next;
-  return enqueueWrite(() => idbPut(IMAGES_KEY, next));
+  return enqueueWrite(async () => {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readwrite");
+      const store = tx.objectStore(STORE);
+      for (const image of added) {
+        store.put({ key: imageKey(image.id), value: image });
+      }
+      for (const id of removed) {
+        store.delete(imageKey(id));
+      }
+      store.put({ key: IMAGES_KEY, value: next });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  });
+}
+
+export function removeGalleryImages(ids: number[]): Promise<void> {
+  return saveGalleryImages([], ids);
+}
+
+export function clearGalleryImages(): Promise<void> {
+  const stale = initialGalleryManifest().ids;
+  galleryCache = defaultGalleryManifest();
+  return enqueueWrite(async () => {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readwrite");
+      const store = tx.objectStore(STORE);
+      for (const id of stale) {
+        store.delete(imageKey(id));
+      }
+      store.put({ key: IMAGES_KEY, value: galleryCache });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  });
 }
 
 export function loadWrapPreference(): boolean {
@@ -323,12 +446,15 @@ export type BackupData = {
   images?: GalleryState;
 };
 
-export function buildBackup(): BackupData {
+export async function buildBackup(): Promise<BackupData> {
   return {
     app: initialState(),
     tables: initialTablesState(),
     wrap: loadWrapPreference(),
-    images: initialGalleryState(),
+    images: {
+      images: await loadAllGalleryImages(),
+      counter: initialGalleryManifest().counter,
+    },
   };
 }
 
@@ -348,23 +474,23 @@ export function isValidBackup(value: unknown): boolean {
   );
 }
 
-export function importBackup(value: unknown): AppState | null {
+export async function importBackup(value: unknown): Promise<AppState | null> {
   if (isValidState(value)) {
-    saveState(value);
+    await saveState(value);
     return value;
   }
   if (!isValidBackup(value)) {
     return null;
   }
   const backup = value as BackupData;
-  saveState(backup.app);
+  await saveState(backup.app);
   const tables = normalizeTablesState(backup.tables);
   if (tables) {
-    saveTablesState(tables);
+    await saveTablesState(tables);
   }
-  saveWrapPreference(backup.wrap);
+  await saveWrapPreference(backup.wrap);
   if (isValidGalleryState(backup.images)) {
-    saveGalleryState(backup.images);
+    await saveGalleryImages(backup.images.images, [], backup.images.counter);
   }
   return backup.app;
 }
@@ -380,7 +506,20 @@ export async function initStorage() {
   tabsCache = isValidTabsData(tabs) ? tabs : null;
   tablesCache = normalizeTablesState(tables);
   wrapCache = typeof wrap === "boolean" ? wrap : null;
-  galleryCache = isValidGalleryState(images) ? images : null;
+  if (isValidManifest(images)) {
+    galleryCache = images;
+    return;
+  }
+  if (isValidGalleryState(images)) {
+    await migrateLegacyGallery(images);
+    return;
+  }
+  galleryCache = null;
+}
+
+async function migrateLegacyGallery(legacy: GalleryState): Promise<void> {
+  galleryCache = null;
+  await saveGalleryImages(legacy.images, [], legacy.counter);
 }
 
 export async function clearAllData() {

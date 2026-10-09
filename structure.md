@@ -7,6 +7,8 @@ duhlupa/
 │   ├── globals.css
 │   ├── layout.tsx
 │   ├── page.tsx
+│   ├── gallery/
+│   │   └── page.tsx
 │   ├── landing/
 │   │   └── page.tsx
 │   └── table/
@@ -14,10 +16,13 @@ duhlupa/
 ├── components/
 │   ├── color-picker.tsx
 │   ├── confirm-dialog.tsx
+│   ├── gallery/
+│   │   └── gallery.tsx
 │   ├── icons/
 │   │   ├── chevron-down.tsx
 │   │   ├── close.tsx
 │   │   ├── exclamation-circle.tsx
+│   │   ├── image.tsx
 │   │   ├── plus.tsx
 │   │   ├── settings.tsx
 │   │   ├── table.tsx
@@ -67,6 +72,8 @@ duhlupa/
 │   │   ├── settings.test.tsx
 │   │   ├── sidebar.test.tsx
 │   │   ├── tab-strip.test.tsx
+│   │   ├── gallery/
+│   │   │   └── gallery.test.tsx
 │   │   ├── table/
 │   │   │   ├── row-count-modal.test.tsx
 │   │   │   ├── table-empty-state.test.tsx

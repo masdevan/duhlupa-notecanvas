@@ -6,15 +6,18 @@ import IconClose from "../icons/close";
 import IconPlus from "../icons/plus";
 import IconTrash from "../icons/trash";
 import {
-  defaultGalleryState,
+  clearGalleryImages,
   initStorage,
-  initialGalleryState,
-  saveGalleryState,
+  initialGalleryManifest,
+  loadGalleryImages,
+  removeGalleryImages,
+  saveGalleryImages,
 } from "../../lib/storage";
-import type { GalleryImage, GalleryState } from "../../lib/types";
+import type { GalleryImage } from "../../lib/types";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 8;
+const ROWS_PER_PAGE = 5;
 
 type Zoom = { scale: number; x: number; y: number };
 
@@ -41,7 +44,10 @@ function readAsDataUrl(file: Blob): Promise<string> {
 }
 
 export default function Gallery() {
-  const [state, setState] = useState<GalleryState>(defaultGalleryState);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [total, setTotal] = useState(0);
+  const [visible, setVisible] = useState(0);
+  const [columns, setColumns] = useState(1);
   const [ready, setReady] = useState(false);
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
@@ -58,45 +64,97 @@ export default function Gallery() {
     pinchMidpoint: Point;
   } | null>(null);
   const movedDuringGesture = useRef(false);
-  const stateRef = useRef(state);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef(zoom);
-  stateRef.current = state;
   zoomRef.current = zoom;
+
+  const pageSize = Math.max(1, columns * ROWS_PER_PAGE);
+
+  async function reload() {
+    const manifest = initialGalleryManifest();
+    setTotal(manifest.ids.length);
+    setImages(await loadGalleryImages(manifest.ids.slice(0, visible)));
+  }
 
   useEffect(() => {
     initStorage().then(() => {
-      setState(initialGalleryState());
+      setTotal(initialGalleryManifest().ids.length);
       setReady(true);
     });
   }, []);
 
   useEffect(() => {
-    function reload() {
-      initStorage().then(() => setState(initialGalleryState()));
+    function handleReload() {
+      initStorage().then(() => {
+        setVisible(0);
+        reload();
+      });
     }
-    window.addEventListener("duhlupa-data-changed", reload);
-    return () => window.removeEventListener("duhlupa-data-changed", reload);
+    window.addEventListener("duhlupa-data-changed", handleReload);
+    return () =>
+      window.removeEventListener("duhlupa-data-changed", handleReload);
   }, []);
+
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    loadGalleryImages(initialGalleryManifest().ids.slice(0, visible)).then(
+      setImages,
+    );
+  }, [ready, visible]);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) {
+      return;
+    }
+    const measure = () => {
+      const track = getComputedStyle(grid).gridTemplateColumns;
+      setColumns(Math.max(1, track.split(" ").filter(Boolean).length));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, [ready]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible((current) =>
+            current >= total ? current : current + pageSize,
+          );
+        }
+      },
+      { root: scrollRef.current, threshold: 0.1 },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [pageSize, total]);
 
   async function addFiles(files: File[]) {
     const images = files.filter((file) => file.type.startsWith("image/"));
     if (images.length === 0) {
       return;
     }
+    const counter = initialGalleryManifest().counter;
     const loaded = await Promise.all(
       images.map(async (file, index): Promise<GalleryImage> => ({
-        id: stateRef.current.counter + index + 1,
-        name: file.name || `Pasted image ${stateRef.current.counter + index + 1}`,
+        id: counter + index + 1,
+        name: file.name || `Pasted image ${counter + index + 1}`,
         type: file.type,
         dataUrl: await readAsDataUrl(file),
       })),
     );
-    const next: GalleryState = {
-      images: [...loaded, ...stateRef.current.images],
-      counter: stateRef.current.counter + loaded.length,
-    };
-    setState(next);
-    saveGalleryState(next);
+    await saveGalleryImages(loaded, []);
+    setVisible((current) => current + loaded.length);
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
     }
@@ -128,23 +186,18 @@ export default function Gallery() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  function commitImages(images: GalleryImage[], counter: number) {
-    const next: GalleryState = { images, counter };
-    setState(next);
-    saveGalleryState(next);
-  }
-
-  function removeImage(id: number) {
-    commitImages(
-      state.images.filter((image) => image.id !== id),
-      state.counter,
-    );
+  async function removeImage(id: number) {
+    await removeGalleryImages([id]);
+    await reload();
     setPendingDeleteId(null);
     closePreview();
   }
 
-  function removeAllImages() {
-    commitImages([], 0);
+  async function removeAllImages() {
+    await clearGalleryImages();
+    setVisible(0);
+    setImages([]);
+    setTotal(0);
     setDeleteAllOpen(false);
     closePreview();
   }
@@ -306,7 +359,7 @@ export default function Gallery() {
     );
   }
 
-  const preview = state.images.find((image) => image.id === previewId) ?? null;
+  const preview = images.find((image) => image.id === previewId) ?? null;
 
   if (!ready) {
     return <main className="h-dvh bg-surface" />;
@@ -314,7 +367,7 @@ export default function Gallery() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-card">
-      <div className="flex h-8 shrink-0 items-center gap-3 border-b border-t border-edge bg-[#0c0c0c] pl-9 pr-2 md:pl-4">
+      <div className="flex h-9 shrink-0 items-center gap-3 border-b border-t border-edge bg-[#0c0c0c] pl-9 pr-2 md:pl-4">
         <button
           onClick={() => fileInputRef.current?.click()}
           className="flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded-sm border border-accent bg-accent px-2 font-mono text-[11px] text-base transition-colors hover:brightness-110"
@@ -325,7 +378,7 @@ export default function Gallery() {
         <span className="hidden shrink-0 font-mono text-[11px] text-foreground/40 sm:inline">
           or paste with Ctrl+V
         </span>
-        {state.images.length > 0 && (
+        {total > 0 && (
           <button
             onClick={() => setDeleteAllOpen(true)}
             aria-label="Delete all images"
@@ -349,7 +402,7 @@ export default function Gallery() {
         ref={scrollRef}
         className="editor-scroll min-h-0 flex-1 overflow-y-auto"
       >
-      {state.images.length === 0 ? (
+      {total === 0 ? (
         <div className="flex min-h-full flex-col items-center justify-center gap-3 pb-24">
           <p className="font-mono text-xs text-foreground/40">
             No images yet
@@ -362,8 +415,11 @@ export default function Gallery() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 p-3 pb-24 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))]">
-          {state.images.map((image) => (
+        <div
+          ref={gridRef}
+          className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 p-3 pb-6 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))]"
+        >
+          {images.map((image) => (
             <div
               key={image.id}
               className="group relative aspect-square cursor-pointer overflow-hidden rounded-md bg-raised"
@@ -386,6 +442,20 @@ export default function Gallery() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+      <div ref={sentinelRef} aria-hidden className="h-px" />
+      {total > images.length && (
+        <div className="flex flex-col items-center gap-2 pb-24">
+          <p className="font-mono text-[11px] text-foreground/40">
+            Showing {images.length} of {total}
+          </p>
+          <button
+            onClick={() => setVisible((current) => current + pageSize)}
+            className="h-6 cursor-pointer rounded-sm border border-edge px-3 font-mono text-[11px] text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
+          >
+            Load more
+          </button>
         </div>
       )}
       </div>

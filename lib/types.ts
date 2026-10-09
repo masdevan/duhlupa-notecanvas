@@ -29,6 +29,11 @@ export type GalleryState = {
   counter: number;
 };
 
+export type GalleryManifest = {
+  ids: number[];
+  counter: number;
+};
+
 export type AppState = {
   tabs: Tab[];
   activeId: number;

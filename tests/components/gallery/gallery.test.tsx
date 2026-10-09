@@ -3,9 +3,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import Gallery from "../../../components/gallery/gallery";
 import {
   clearAllData,
-  defaultGalleryState,
+  defaultGalleryManifest,
   initStorage,
-  initialGalleryState,
+  initialGalleryManifest,
+  loadGalleryImages,
 } from "../../../lib/storage";
 
 const PNG =
@@ -324,7 +325,7 @@ describe("Gallery", () => {
     fireEvent.click(await screen.findByText("Delete"));
     await screen.findByText("No images yet");
     await initStorage();
-    expect(initialGalleryState()).toEqual(defaultGalleryState());
+    expect(initialGalleryManifest()).toEqual(defaultGalleryManifest());
   });
 
   it("persists images to indexeddb", async () => {
@@ -333,8 +334,41 @@ describe("Gallery", () => {
     fireEvent.change(fileInput(), { target: { files: [imageFile()] } });
     await screen.findByAltText("shot.png");
     await initStorage();
-    const stored = initialGalleryState();
-    expect(stored.images).toHaveLength(1);
-    expect(stored.images[0].dataUrl).toBe(PNG);
+    expect(initialGalleryManifest().ids).toHaveLength(1);
+    const stored = await loadGalleryImages(initialGalleryManifest().ids);
+    expect(stored[0].dataUrl).toBe(PNG);
+  });
+
+  it("shows how many images are loaded out of the total", async () => {
+    render(<Gallery />);
+    await screen.findByText("No images yet");
+    fireEvent.change(fileInput(), {
+      target: {
+        files: Array.from({ length: 40 }, (_, index) =>
+          imageFile(`bulk-${index}.png`),
+        ),
+      },
+    });
+    expect(await screen.findByText(/Showing \d+ of 40/)).toBeInTheDocument();
+  });
+
+  it("loads the next page when the sentinel is scrolled into view", async () => {
+    render(<Gallery />);
+    await screen.findByText("No images yet");
+    fireEvent.change(fileInput(), {
+      target: {
+        files: Array.from({ length: 30 }, (_, index) =>
+          imageFile(`page-${index}.png`),
+        ),
+      },
+    });
+    const counter = await screen.findByText(/Showing \d+ of 30/);
+    const shown = Number(counter.textContent!.match(/Showing (\d+)/)![1]);
+    fireEvent.click(screen.getByText("Load more"));
+    await screen.findByText(
+      `Showing ${shown + 5} of 30`,
+      {},
+      { timeout: 2000 },
+    );
   });
 });

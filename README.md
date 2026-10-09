@@ -11,6 +11,9 @@ A minimal tabbed notepad that runs entirely in your browser. Write in multiple t
 - Multiple note tabs — add, close, select, and drag to scroll
 - Tab titles auto-derive from the first line of each note
 - Word wrap width control (desktop & tablet) — drag the wrap handles
+- Spreadsheet tables with XLSX import/export, resizable columns, row and column delete
+- Image gallery — drop in files or paste with Ctrl+V, tap to zoom, wheel or pinch to scale, drag to pan
+- Gallery loads 5 rows at a time, images stored one per IndexedDB record so large galleries stay light
 - Custom accent & text colors via a circular color picker
 - Font choice: Mono or Sans
 - Settings modal with save / reset / unsaved-changes guard
@@ -23,6 +26,8 @@ A minimal tabbed notepad that runs entirely in your browser. Write in multiple t
 - Next.js 16 (App Router) + React 19
 - Tailwind CSS 4
 - TypeScript
+- Vitest + Testing Library
+- IndexedDB, XLSX
 
 ## Getting Started
 
@@ -36,8 +41,9 @@ Open http://localhost:3000.
 ## Project Structure
 
 ```
-app/           pages, layout, global styles
-components/    UI components (editor, tab strip, modals, icons)
+app/           pages (write, table, gallery, landing), layout, global styles
+components/    UI components (editor, tab strip, table grid, gallery, modals, icons)
 lib/           pure logic (storage, types)
-public/        static assets (init.js, favicons)
+public/        static assets (init.js, fonts, favicons)
+tests/         vitest specs mirroring app/, components/, lib/
 ```

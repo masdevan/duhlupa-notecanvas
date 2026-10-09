@@ -142,8 +142,9 @@ export default function Settings() {
     });
   }
 
-  function exportData() {
-    const blob = new Blob([JSON.stringify(buildBackup(), null, 2)], {
+  async function exportData() {
+    const backup = await buildBackup();
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
@@ -154,8 +155,8 @@ export default function Settings() {
     URL.revokeObjectURL(url);
   }
 
-  function importData(data: unknown) {
-    const restored = importBackup(data);
+  async function importData(data: unknown) {
+    const restored = await importBackup(data);
     if (!restored) {
       return;
     }
