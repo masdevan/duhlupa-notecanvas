@@ -17,6 +17,18 @@ export type TablesState = {
   counter: number;
 };
 
+export type GalleryImage = {
+  id: number;
+  name: string;
+  type: string;
+  dataUrl: string;
+};
+
+export type GalleryState = {
+  images: GalleryImage[];
+  counter: number;
+};
+
 export type AppState = {
   tabs: Tab[];
   activeId: number;

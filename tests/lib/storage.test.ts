@@ -2,15 +2,18 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   buildBackup,
   clearAllData,
+  defaultGalleryState,
   defaultState,
   defaultTablesState,
   importBackup,
   initStorage,
+  initialGalleryState,
   initialState,
   initialTablesState,
   isValidBackup,
   isValidState,
   loadWrapPreference,
+  saveGalleryState,
   saveState,
   saveTablesState,
   saveWrapPreference,
@@ -129,6 +132,24 @@ describe("indexeddb storage", () => {
     expect(state.tables[0].colWidths).toEqual([200]);
   });
 
+  it("persists gallery images", async () => {
+    await saveGalleryState({
+      images: [
+        { id: 1, name: "shot.png", type: "image/png", dataUrl: "data:image/png;base64,AAA" },
+      ],
+      counter: 1,
+    });
+    await initStorage();
+    const state = initialGalleryState();
+    expect(state.images).toHaveLength(1);
+    expect(state.images[0].dataUrl).toBe("data:image/png;base64,AAA");
+  });
+
+  it("falls back to an empty gallery", async () => {
+    await initStorage();
+    expect(initialGalleryState()).toEqual(defaultGalleryState());
+  });
+
   it("persists the wrap preference", async () => {
     await saveWrapPreference(true);
     await initStorage();
@@ -137,10 +158,15 @@ describe("indexeddb storage", () => {
 
   it("clearAllData resets everything", async () => {
     await saveState({ ...defaultState(), tabs: [{ id: 1, content: "x" }] });
+    await saveGalleryState({
+      images: [{ id: 1, name: "a.png", type: "image/png", dataUrl: "data:," }],
+      counter: 1,
+    });
     await clearAllData();
     await initStorage();
     expect(initialState()).toEqual(defaultState());
     expect(initialTablesState()).toEqual(defaultTablesState());
+    expect(initialGalleryState()).toEqual(defaultGalleryState());
   });
 });
 
@@ -158,11 +184,16 @@ describe("backup", () => {
       activeId: 1,
       counter: 1,
     });
+    await saveGalleryState({
+      images: [{ id: 1, name: "a.png", type: "image/png", dataUrl: "data:," }],
+      counter: 1,
+    });
     await saveWrapPreference(true);
     const backup = buildBackup();
     expect(backup.app.tabs[0].content).toBe("note");
     expect(backup.tables.tables[0].name).toBe("Sales");
     expect(backup.wrap).toBe(true);
+    expect(backup.images?.images).toHaveLength(1);
   });
 
   it("restores everything from a backup", async () => {
@@ -176,6 +207,10 @@ describe("backup", () => {
         counter: 1,
       },
       wrap: true,
+      images: {
+        images: [{ id: 1, name: "b.png", type: "image/png", dataUrl: "data:," }],
+        counter: 1,
+      },
     };
     expect(isValidBackup(backup)).toBe(true);
     expect(importBackup(backup)).toEqual(backup.app);
@@ -183,6 +218,16 @@ describe("backup", () => {
     expect(initialState().tabs[0].content).toBe("restored");
     expect(initialTablesState().tables[0].name).toBe("Stock");
     expect(loadWrapPreference()).toBe(true);
+    expect(initialGalleryState().images[0].name).toBe("b.png");
+  });
+
+  it("accepts backups without an images key", () => {
+    const legacy = {
+      app: defaultState(),
+      tables: defaultTablesState(),
+      wrap: false,
+    };
+    expect(isValidBackup(legacy)).toBe(true);
   });
 
   it("accepts legacy plain AppState backups", async () => {
@@ -197,5 +242,15 @@ describe("backup", () => {
     expect(isValidBackup(null)).toBe(false);
     expect(isValidBackup({ app: {}, tables: {}, wrap: "yes" })).toBe(false);
     expect(importBackup({ nope: true })).toBeNull();
+  });
+
+  it("rejects backups with a malformed images key", () => {
+    const bad = {
+      app: defaultState(),
+      tables: defaultTablesState(),
+      wrap: false,
+      images: { images: [{ id: "x", dataUrl: 1 }], counter: 1 },
+    };
+    expect(isValidBackup(bad)).toBe(false);
   });
 });

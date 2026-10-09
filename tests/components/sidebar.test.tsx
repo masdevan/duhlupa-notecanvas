@@ -13,10 +13,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("Sidebar", () => {
-  it("renders write and table navigation", () => {
+  it("renders write, table and gallery navigation", () => {
     render(<Sidebar />);
     expect(screen.getByLabelText("Write")).toBeInTheDocument();
     expect(screen.getByLabelText("Table")).toBeInTheDocument();
+    expect(screen.getByLabelText("Gallery")).toBeInTheDocument();
     expect(screen.getAllByAltText("Duhlupa").length).toBeGreaterThan(0);
   });
 
@@ -25,6 +26,7 @@ describe("Sidebar", () => {
     fireEvent.click(screen.getByLabelText("Open menu"));
     expect(screen.getByText("Write")).toBeInTheDocument();
     expect(screen.getByText("Table")).toBeInTheDocument();
+    expect(screen.getByText("Gallery")).toBeInTheDocument();
   });
 
   it("closes the mobile menu when clicking outside", () => {

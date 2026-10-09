@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
 import IconChevronDown from "../../components/icons/chevron-down";
 import IconClose from "../../components/icons/close";
+import IconExclamationCircle from "../../components/icons/exclamation-circle";
+import IconImage from "../../components/icons/image";
 import IconPlus from "../../components/icons/plus";
 import IconSettings from "../../components/icons/settings";
 import IconTable from "../../components/icons/table";
@@ -11,6 +13,8 @@ import IconWrite from "../../components/icons/write";
 const icons = [
   ["chevron-down", IconChevronDown],
   ["close", IconClose],
+  ["exclamation-circle", IconExclamationCircle],
+  ["image", IconImage],
   ["plus", IconPlus],
   ["settings", IconSettings],
   ["table", IconTable],

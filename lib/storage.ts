@@ -1,4 +1,10 @@
-import type { AppState, Tab, TablesState, TableTab } from "./types";
+import type {
+  AppState,
+  GalleryState,
+  Tab,
+  TablesState,
+  TableTab,
+} from "./types";
 
 const SETTINGS_KEY = "duhlupa-settings";
 const DB_NAME = "duhlupa";
@@ -6,6 +12,7 @@ const STORE = "kv";
 const TABS_KEY = "tabs";
 const TABLES_KEY = "tables";
 const WRAP_KEY = "wrap";
+const IMAGES_KEY = "images";
 
 type TabsData = Pick<AppState, "tabs" | "activeId" | "counter" | "wrapWidth">;
 type SettingsData = Pick<
@@ -19,6 +26,7 @@ type SettingsData = Pick<
 
 let tabsCache: TabsData | null = null;
 let tablesCache: TablesState | null = null;
+let galleryCache: GalleryState | null = null;
 let wrapCache: boolean | null = null;
 let writeQueue: Promise<void> = Promise.resolve();
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -268,6 +276,37 @@ export function saveTablesState(next: TablesState): Promise<void> {
   return enqueueWrite(() => idbPut(TABLES_KEY, next));
 }
 
+function isValidGalleryState(value: unknown): value is GalleryState {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const s = value as Record<string, unknown>;
+  return (
+    Array.isArray(s.images) &&
+    s.images.every(
+      (image) =>
+        typeof image === "object" &&
+        image !== null &&
+        typeof (image as GalleryState["images"][number]).id === "number" &&
+        typeof (image as GalleryState["images"][number]).dataUrl === "string",
+    ) &&
+    typeof s.counter === "number"
+  );
+}
+
+export function defaultGalleryState(): GalleryState {
+  return { images: [], counter: 0 };
+}
+
+export function initialGalleryState(): GalleryState {
+  return galleryCache ?? defaultGalleryState();
+}
+
+export function saveGalleryState(next: GalleryState): Promise<void> {
+  galleryCache = next;
+  return enqueueWrite(() => idbPut(IMAGES_KEY, next));
+}
+
 export function loadWrapPreference(): boolean {
   return wrapCache ?? false;
 }
@@ -281,6 +320,7 @@ export type BackupData = {
   app: AppState;
   tables: TablesState;
   wrap: boolean;
+  images?: GalleryState;
 };
 
 export function buildBackup(): BackupData {
@@ -288,6 +328,7 @@ export function buildBackup(): BackupData {
     app: initialState(),
     tables: initialTablesState(),
     wrap: loadWrapPreference(),
+    images: initialGalleryState(),
   };
 }
 
@@ -302,7 +343,8 @@ export function isValidBackup(value: unknown): boolean {
   return (
     isValidState(backup.app) &&
     isValidTablesState(backup.tables) &&
-    typeof backup.wrap === "boolean"
+    typeof backup.wrap === "boolean" &&
+    (backup.images === undefined || isValidGalleryState(backup.images))
   );
 }
 
@@ -321,24 +363,30 @@ export function importBackup(value: unknown): AppState | null {
     saveTablesState(tables);
   }
   saveWrapPreference(backup.wrap);
+  if (isValidGalleryState(backup.images)) {
+    saveGalleryState(backup.images);
+  }
   return backup.app;
 }
 
 export async function initStorage() {
   await writeQueue;
-  const [tabs, tables, wrap] = await Promise.all([
+  const [tabs, tables, wrap, images] = await Promise.all([
     idbGet(TABS_KEY),
     idbGet(TABLES_KEY),
     idbGet(WRAP_KEY),
+    idbGet(IMAGES_KEY),
   ]);
   tabsCache = isValidTabsData(tabs) ? tabs : null;
   tablesCache = normalizeTablesState(tables);
   wrapCache = typeof wrap === "boolean" ? wrap : null;
+  galleryCache = isValidGalleryState(images) ? images : null;
 }
 
 export async function clearAllData() {
   tabsCache = null;
   tablesCache = null;
+  galleryCache = null;
   wrapCache = null;
   try {
     localStorage.removeItem(SETTINGS_KEY);
