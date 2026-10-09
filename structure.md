@@ -17,7 +17,10 @@ duhlupa/
 │   ├── color-picker.tsx
 │   ├── confirm-dialog.tsx
 │   ├── gallery/
-│   │   └── gallery.tsx
+│   │   ├── gallery-grid.tsx
+│   │   ├── gallery-toolbar.tsx
+│   │   ├── gallery.tsx
+│   │   └── image-viewer.tsx
 │   ├── icons/
 │   │   ├── chevron-down.tsx
 │   │   ├── close.tsx
@@ -73,7 +76,9 @@ duhlupa/
 │   │   ├── sidebar.test.tsx
 │   │   ├── tab-strip.test.tsx
 │   │   ├── gallery/
-│   │   │   └── gallery.test.tsx
+│   │   │   ├── gallery.test.tsx
+│   │   │   ├── helpers.tsx
+│   │   │   └── image-viewer.test.tsx
 │   │   ├── table/
 │   │   │   ├── row-count-modal.test.tsx
 │   │   │   ├── table-empty-state.test.tsx
