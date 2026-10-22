@@ -1,18 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ConfirmDialog from "../confirm-dialog";
 import Settings from "../settings";
 import Sidebar from "../sidebar";
 import TabStrip from "../tab-strip";
 import Editor from "./editor";
-import { defaultState, initStorage, initialState, saveState } from "../../lib/storage";
-import type { AppState } from "../../lib/types";
+import {
+  defaultState,
+  initialState,
+  initStorage,
+  saveState,
+} from "../../lib/storage";
+import { getTabTitle } from "../../lib/tab-title";
+import type { AppState, Tab } from "../../lib/types";
 
 export default function TabsBar() {
   const [state, setState] = useState<AppState>(defaultState);
   const [ready, setReady] = useState(false);
+  const [pendingCloseId, setPendingCloseId] = useState<number | null>(null);
   const { tabs, activeId, wrapWidth } = state;
   const activeTab = tabs.find((tab) => tab.id === activeId);
+  const pendingTab = tabs.find((tab) => tab.id === pendingCloseId);
 
   useEffect(() => {
     initStorage().then(() => {
@@ -23,11 +32,25 @@ export default function TabsBar() {
 
   useEffect(() => {
     function reload() {
+      setPendingCloseId(null);
       initStorage().then(() => setState(initialState()));
     }
     window.addEventListener("duhlupa-data-changed", reload);
     return () => window.removeEventListener("duhlupa-data-changed", reload);
   }, []);
+
+  useEffect(() => {
+    if (pendingCloseId === null) {
+      return;
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setPendingCloseId(null);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [pendingCloseId]);
 
   function commit(next: AppState) {
     setState(next);
@@ -48,7 +71,12 @@ export default function TabsBar() {
     const index = state.tabs.findIndex((tab) => tab.id === id);
     const remaining = state.tabs.filter((tab) => tab.id !== id);
     if (remaining.length === 0) {
-      commit(defaultState());
+      commit({
+        ...state,
+        tabs: [{ id: 1, content: "" }],
+        activeId: 1,
+        counter: 1,
+      });
       return;
     }
     commit({
@@ -59,6 +87,25 @@ export default function TabsBar() {
           ? remaining[Math.min(index, remaining.length - 1)].id
           : state.activeId,
     });
+  }
+
+  function confirmCloseTab() {
+    if (pendingCloseId === null) {
+      return;
+    }
+    closeTab(pendingCloseId);
+    setPendingCloseId(null);
+  }
+
+  function reorderTabs(orderedIds: number[]) {
+    const tabsById = new Map(state.tabs.map((tab) => [tab.id, tab]));
+    const orderedTabs = orderedIds
+      .map((id) => tabsById.get(id))
+      .filter((tab): tab is Tab => Boolean(tab));
+    if (orderedTabs.length !== state.tabs.length) {
+      return;
+    }
+    commit({ ...state, tabs: orderedTabs });
   }
 
   function updateContent(content: string) {
@@ -92,7 +139,9 @@ export default function TabsBar() {
           activeId={activeId}
           onSelect={selectTab}
           onAdd={addTab}
-          onClose={closeTab}
+          onClose={setPendingCloseId}
+          reorderable
+          onReorder={reorderTabs}
         />
         <Editor
           content={activeTab?.content ?? ""}
@@ -102,6 +151,16 @@ export default function TabsBar() {
         />
         <Settings />
       </div>
+      {pendingTab && (
+        <ConfirmDialog
+          message={`Delete "${getTabTitle(pendingTab)}"?`}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          danger
+          onConfirm={confirmCloseTab}
+          onCancel={() => setPendingCloseId(null)}
+        />
+      )}
     </main>
   );
 }

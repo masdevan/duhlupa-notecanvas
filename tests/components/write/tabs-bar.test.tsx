@@ -46,4 +46,29 @@ describe("TabsBar", () => {
     await initStorage();
     expect(initialState().tabs[0].content).toBe("saved");
   });
+
+  it("asks for confirmation before closing a tab", async () => {
+    render(<TabsBar />);
+    fireEvent.click(await screen.findByLabelText("New tab"));
+    const closeButtons = screen.getAllByLabelText("Close tab");
+    fireEvent.click(closeButtons[1]);
+    expect(screen.getByText('Delete "Untitled 2"?')).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Close tab")).toHaveLength(2);
+  });
+
+  it("keeps the tab when deletion is cancelled", async () => {
+    render(<TabsBar />);
+    fireEvent.click(await screen.findByLabelText("New tab"));
+    fireEvent.click(screen.getAllByLabelText("Close tab")[1]);
+    fireEvent.click(screen.getByText("Cancel"));
+    expect(screen.getAllByLabelText("Close tab")).toHaveLength(2);
+  });
+
+  it("closes the tab after confirmation", async () => {
+    render(<TabsBar />);
+    fireEvent.click(await screen.findByLabelText("New tab"));
+    fireEvent.click(screen.getAllByLabelText("Close tab")[1]);
+    fireEvent.click(screen.getByText("Delete"));
+    expect(screen.getAllByLabelText("Close tab")).toHaveLength(1);
+  });
 });

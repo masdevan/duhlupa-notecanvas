@@ -27,19 +27,19 @@ export default function ConfirmDialog({
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className="modal-panel w-[calc(100%-2rem)] max-w-xs rounded-sm border border-edge bg-raised p-5 shadow-2xl"
+        className="modal-panel w-[calc(100%-2rem)] max-w-xs rounded-sm border border-edge bg-raised p-4 shadow-2xl sm:p-5"
       >
-        <p className="font-mono text-xs text-foreground">{message}</p>
+        <p className="font-mono text-sm text-foreground sm:text-xs">{message}</p>
         <div className="mt-5 flex gap-2">
           <button
             onClick={onCancel}
-            className="h-8 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-xs text-foreground/50 transition-colors hover:border-accent hover:text-foreground"
+            className="h-10 flex-1 cursor-pointer rounded-sm border border-edge font-mono text-sm text-foreground/50 transition-colors hover:border-accent hover:text-foreground sm:h-8 sm:text-xs"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`h-8 flex-1 cursor-pointer rounded-sm font-mono text-xs transition-colors ${
+            className={`h-10 flex-1 cursor-pointer rounded-sm font-mono text-sm transition-colors sm:h-8 sm:text-xs ${
               danger
                 ? "bg-red-500/80 text-white hover:bg-red-500"
                 : "bg-accent text-base hover:brightness-110"

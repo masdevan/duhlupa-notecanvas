@@ -47,6 +47,7 @@ duhlupa/
 │       └── tabs-bar.tsx
 ├── lib/
 │   ├── storage.ts
+│   ├── tab-title.ts
 │   └── types.ts
 ├── node_modules/
 ├── public/
