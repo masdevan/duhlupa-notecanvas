@@ -67,6 +67,12 @@ textarea {
   -webkit-touch-callout: none;
 }
 
+.tab-close::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

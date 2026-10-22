@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import TabStrip from "../../components/tab-strip";
 
 const tabs = [
@@ -62,6 +62,10 @@ function mockPointerCapture() {
   });
   return capture;
 }
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("TabStrip", () => {
   it("derives tab titles from the first line", () => {
@@ -197,6 +201,90 @@ describe("TabStrip", () => {
     });
 
     expect(handlers.onReorder).toHaveBeenCalledWith([2, 1]);
+  });
+
+  it("does not reorder when a touch swipes horizontally", () => {
+    const handlers = renderStrip({ reorderable: true });
+    const capture = mockPointerCapture();
+    mockTabRects();
+    const firstTab = getTabElement("First note");
+
+    fireEvent.pointerDown(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 20,
+      clientY: 10,
+      button: 0,
+    });
+    fireEvent.pointerMove(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 40,
+      clientY: 10,
+    });
+    fireEvent.pointerUp(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 40,
+      clientY: 10,
+    });
+
+    expect(capture).not.toHaveBeenCalled();
+    expect(handlers.onReorder).not.toHaveBeenCalled();
+  });
+
+  it("reorders after a short touch hold", () => {
+    vi.useFakeTimers();
+    const handlers = renderStrip({ reorderable: true });
+    mockTabRects();
+    const firstTab = getTabElement("First note");
+
+    fireEvent.pointerDown(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 20,
+      clientY: 10,
+      button: 0,
+    });
+    act(() => {
+      vi.advanceTimersByTime(250);
+    });
+    fireEvent.pointerMove(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 220,
+      clientY: 10,
+    });
+    fireEvent.pointerUp(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 220,
+      clientY: 10,
+    });
+
+    expect(handlers.onReorder).toHaveBeenCalledWith([2, 1]);
+  });
+
+  it("selects a tab after a short touch tap", () => {
+    const handlers = renderStrip({ reorderable: true });
+    const firstTab = getTabElement("First note");
+
+    fireEvent.pointerDown(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 20,
+      clientY: 10,
+      button: 0,
+    });
+    fireEvent.pointerUp(firstTab, {
+      pointerId: 3,
+      pointerType: "touch",
+      clientX: 20,
+      clientY: 10,
+    });
+    fireEvent.click(firstTab);
+
+    expect(handlers.onSelect).toHaveBeenCalledWith(1);
   });
 
   it("does not reorder when reordering is disabled", () => {

@@ -7,6 +7,8 @@ import IconClose from "./icons/close";
 import IconPlus from "./icons/plus";
 
 const DRAG_THRESHOLD = 8;
+const TOUCH_HOLD_MS = 250;
+const TOUCH_MOVE_TOLERANCE = 12;
 const EDGE_SCROLL_ZONE = 32;
 const EDGE_SCROLL_SPEED = 12;
 const TAB_GAP = 1;
@@ -41,6 +43,7 @@ type DragState = {
   startX: number;
   startScroll: number;
   active: boolean;
+  timer: number | null;
 };
 
 type DragVisual = {
@@ -86,6 +89,10 @@ export default function TabStrip({
 
   useEffect(() => {
     return () => {
+      const drag = dragRef.current;
+      if (drag?.timer) {
+        window.clearTimeout(drag.timer);
+      }
       if (autoScrollFrameRef.current !== null) {
         cancelAnimationFrame(autoScrollFrameRef.current);
       }
@@ -169,6 +176,33 @@ export default function TabStrip({
     }
   }
 
+  function clearLongPress(drag: DragState) {
+    if (drag.timer) {
+      window.clearTimeout(drag.timer);
+      drag.timer = null;
+    }
+  }
+
+  function activateDrag() {
+    const drag = dragRef.current;
+    if (!drag || drag.active || drag.mode !== "reorder" || drag.tabId === null) {
+      return;
+    }
+    drag.active = true;
+    drag.timer = null;
+    suppressClickRef.current = true;
+    try {
+      stripRef.current?.setPointerCapture(drag.pointerId);
+    } catch {}
+    setDragVisual({
+      tabId: drag.tabId,
+      originIndex: drag.originIndex,
+      targetIndex: drag.originIndex,
+      offset: 0,
+      step: drag.step,
+    });
+  }
+
   function startDrag(event: React.PointerEvent, tabElement: HTMLElement) {
     const tabId = Number(tabElement.dataset.tabId);
     const originIndex = tabs.findIndex((tab) => tab.id === tabId);
@@ -187,7 +221,11 @@ export default function TabStrip({
       startX: event.clientX,
       startScroll: stripRef.current?.scrollLeft ?? 0,
       active: false,
+      timer: null,
     };
+    if (event.pointerType === "touch") {
+      dragRef.current.timer = window.setTimeout(activateDrag, TOUCH_HOLD_MS);
+    }
   }
 
   function startScrollDrag(event: React.PointerEvent) {
@@ -202,6 +240,7 @@ export default function TabStrip({
       startX: event.clientX,
       startScroll: stripRef.current?.scrollLeft ?? 0,
       active: false,
+      timer: null,
     };
   }
 
@@ -235,14 +274,27 @@ export default function TabStrip({
     }
     if (!drag.active) {
       const dx = event.clientX - drag.startX;
+      if (drag.mode === "reorder" && event.pointerType === "touch") {
+        if (Math.abs(dx) <= TOUCH_MOVE_TOLERANCE) {
+          return;
+        }
+        clearLongPress(drag);
+        dragRef.current = null;
+        setDragVisual(null);
+        return;
+      }
       if (Math.abs(dx) < DRAG_THRESHOLD) {
         return;
       }
-      drag.active = true;
-      suppressClickRef.current = true;
-      try {
-        stripRef.current?.setPointerCapture(event.pointerId);
-      } catch {}
+      if (drag.mode === "reorder") {
+        activateDrag();
+      } else {
+        drag.active = true;
+        suppressClickRef.current = true;
+        try {
+          stripRef.current?.setPointerCapture(event.pointerId);
+        } catch {}
+      }
     }
     if (drag.mode === "scroll") {
       if (event.pointerType === "mouse" && stripRef.current) {
@@ -262,6 +314,7 @@ export default function TabStrip({
     if (!drag || drag.pointerId !== event.pointerId) {
       return;
     }
+    clearLongPress(drag);
     stopAutoScroll();
     if (drag.active) {
       if (
@@ -292,6 +345,7 @@ export default function TabStrip({
     if (!drag || drag.active) {
       return;
     }
+    clearLongPress(drag);
     stopAutoScroll();
     dragRef.current = null;
     try {
@@ -384,7 +438,7 @@ export default function TabStrip({
             onClick={() => selectTab(tab.id)}
             onDoubleClick={() => renameTab(tab.id)}
             className={`group relative flex h-full w-32 shrink-0 cursor-pointer items-center whitespace-nowrap border-t-2 border-edge pl-4 font-mono text-xs transition-colors sm:w-40 ${borderClasses} ${
-              reorderable ? "touch-none" : ""
+              reorderable ? "touch-pan-x" : ""
             } ${
               isActive
                 ? "border-t-accent bg-tab-active text-foreground/50"
@@ -405,7 +459,7 @@ export default function TabStrip({
                 className="w-full min-w-0 bg-transparent pr-7 font-mono text-xs text-foreground outline-none"
               />
             ) : (
-              <span className="truncate pr-9 sm:pr-7">{title}</span>
+              <span className="truncate pr-7">{title}</span>
             )}
             <button
               onPointerDown={(event) => event.stopPropagation()}
@@ -414,7 +468,7 @@ export default function TabStrip({
                 onClose(tab.id);
               }}
               aria-label="Close tab"
-              className="absolute right-1.5 flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-full bg-red-500/20 text-red-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/40 [@media(hover:none)]:h-6 [@media(hover:none)]:w-6 [@media(hover:none)]:opacity-100"
+              className="tab-close absolute right-1.5 flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-full bg-red-500/20 text-red-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/40 [@media(hover:none)]:opacity-100"
             >
               <IconClose size={10} />
             </button>
